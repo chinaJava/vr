@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>#parse("sys/header.html")
+<title></title>
+<style type="text/css">
+	.list-group .list-group-item{
+		background:#eeeeee;
+	}
+	#autocomplete{
+		position:relative;
+	}
+	.list-group{
+		width: 370px;
+		/*margin-left: 800px;  */
+		position:absolute;
+		top:30px;
+		left:12px;
+		display: none;
+		z-index:99;
+	}
+	.list-group li:hover{
+		background: #333333;
+		color: white;
+		cursor: pointer;
+	}
+	.list{
+		float:left;
+		margin-left: 0;		
+	}
+</style>
+<link href="${rc.contextPath}/js/umeditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<div class="form-group col-sm-2">
+				<input type="text" class="form-control" v-model="q.title" @keyup.enter="query" placeholder="标题">
+			</div>
+			<div class="form-group col-sm-2">
+				<select id="articleType_query" class="form-control" v-model="q.typeid" @keyup.enter="query"></select>
+			</div>
+			<div class="form-group col-sm-2 msg-list">
+				<!-- <select id="gameInfo_query" class="form-control" v-model="q.gameid" @keyup.enter="query"></select> -->
+				<input type="text" id="autocomplete" class="form-control" v-model="q.gameName" @keyup.enter="query" placeholder="游戏名">
+				<ul class="list-group" ></ul>
+			</div>
+			
+			<a class="btn btn-default" @click="query">查询</a>
+			
+			#if($shiro.hasPermission("tgamearticle:save"))
+			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			#end
+			#if($shiro.hasPermission("tgamearticle:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			#end
+			#if($shiro.hasPermission("tgamearticle:delete"))
+			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			#end
+		</div>
+		<!--<ul class="list-group"></ul>-->
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏名</div>
+			   	<div class="col-sm-10">
+			      <input type="text" id="game-list" class="form-control" v-model="tGameArticle.gameName" placeholder="游戏名"/>
+			       <ul class="list-group list"></ul>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameArticle.title" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">副标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameArticle.subheading" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">作者</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameArticle.author" placeholder=""/>
+			    </div>
+			</div>
+			<!-- 
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">日期</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameArticle.createtime" placeholder="" />
+			    </div>
+			</div>
+			-->
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">浏览量</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameArticle.pageViews" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">内容</div>
+			   	<div class="col-sm-10">
+			      <textarea rows="20" cols="100" class="form-control" id="container">
+				  </textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">类型</div>
+			   	<div class="col-sm-10">
+			      <select id="articleType_add" class="form-control" v-model="tGameArticle.typeid"></select>
+			    </div>
+			</div>
+			<!-- 
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">图片地址</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameArticle.picUrl" placeholder=""/>
+			    </div>
+			</div>
+			 -->
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input id="submit_button" type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="${rc.contextPath}/js/app/tgamearticle.js?_${date.systemTime}"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/third-party/template.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/lang/zh-cn/zh-cn.js"></script>
+</body>
+</html>

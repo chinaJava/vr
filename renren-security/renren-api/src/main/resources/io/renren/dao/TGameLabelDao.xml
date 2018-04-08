@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TGameLabelDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TGameLabelEntity" id="tGameLabelMap">
+        <result property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="status" column="STATUS"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TGameLabelEntity">
+		select * from t_game_label where ID = #{value}
+	</select>
+	
+	<select id="queryAllObject" resultType="io.renren.entity.TGameLabelEntity">
+		select * from t_game_label where STATUS = '1'
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TGameLabelEntity">
+		select * from t_game_label
+		<where>
+			<if test="name != null and name.trim() != ''">
+				and NAME like concat('%',#{name},'%')
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_game_label 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TGameLabelEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_label
+		(
+			`NAME`, 
+			`CREATOR`, 
+			`CREATETIME`, 
+			`STATUS`
+		)
+		values
+		(
+			#{name}, 
+			#{creator}, 
+			#{createtime}, 
+			#{status}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TGameLabelEntity">
+		update t_game_label 
+		<set>
+			<if test="name != null">`NAME` = #{name}, </if>
+			<!-- 
+			<if test="creator != null">`CREATOR` = #{creator}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			 -->
+			<if test="status != null">`STATUS` = #{status}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_game_label where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_game_label where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

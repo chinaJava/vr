@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TMemberInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TMemberInfoEntity" id="tMemberInfoMap">
+        <result property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="code" column="CODE"/>
+        <result property="validNumber" column="VALID_NUMBER"/>
+        <result property="chargeQuarter" column="CHARGE_QUARTER"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TMemberInfoEntity">
+		select * from t_member_info where ID = #{value}
+	</select>
+	
+	<select id="queryAllList" resultType="io.renren.entity.TMemberInfoEntity">
+		select * from t_member_info order by ID asc
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TMemberInfoEntity">
+		select * from t_member_info
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_member_info 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TMemberInfoEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_member_info
+		(
+			`NAME`, 
+			`CODE`, 
+			`VALID_NUMBER`, 
+			`CHARGE_QUARTER`
+		)
+		values
+		(
+			#{name}, 
+			#{code}, 
+			#{validNumber}, 
+			#{chargeQuarter}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TMemberInfoEntity">
+		update t_member_info 
+		<set>
+			<if test="name != null">`NAME` = #{name}, </if>
+			<if test="code != null">`CODE` = #{code}, </if>
+			<if test="validNumber != null">`VALID_NUMBER` = #{validNumber}, </if>
+			<if test="chargeQuarter != null">`CHARGE_QUARTER` = #{chargeQuarter}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_member_info where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_member_info where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

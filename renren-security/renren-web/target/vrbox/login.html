@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	  <meta charset="utf-8">
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	  <title>甲由后台管理系统</title>
+	  <!-- Tell the browser to be responsive to screen width -->
+	  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	  <link rel="stylesheet" href="statics/css/bootstrap.min.css">
+	  <link rel="stylesheet" href="statics/css/font-awesome.min.css">
+	  <link rel="stylesheet" href="statics/css/AdminLTE.min.css">
+	  <!-- AdminLTE Skins. Choose a skin from the css/skins
+	       folder instead of downloading all of them to reduce the load. -->
+	  <link rel="stylesheet" href="statics/css/all-skins.min.css">
+	  <link rel="stylesheet" href="statics/css/main.css">
+	  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	  <!--[if lt IE 9]>
+	  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	  <![endif]-->
+	  <style type="text/css">
+	  	html,body{height: 100%;overflow: hidden;}
+			body{background: url(statics/img/beijing..png) fixed;background-size: 100% 100%;position: relative;-webkit-perspective: 900px;perspective: 900px;}
+			body::before {content: "";position: fixed;top: -10px;left: 0;width: 100%;height: 10px; -webkit-box-shadow: 0px 0px 10px rgba(0,0,0,.8);box-shadow: 0px 0px 10px rgba(0,0,0,.8); z-index: 100;}
+			.login-box{width: 380px;margin: 0;position: absolute;right: 23.5%;top: 22.5%;-webkit-animation: slit 1s ease-in-out;animation: slit 1s ease-in-out;transform-style: preserve-3d;-webkit-transform-style: preserve-3d;transform-origin: 100% 0;-webkit-transform-origin: 100% 0;}
+			.login-box::after{content:"";position: absolute;right:0;top:48px;border: 15px solid;border-color:#0eacda #0eacda transparent transparent;background: rgba(0,0,0,0.1);}
+			.login-box-body{padding: 20px 0;position: relative;}
+			.login-box-body::before,.login-box-body::after{ position:absolute; content:""; top:10px; bottom:12px; left:10px; width:50%; box-shadow:0 15px 10px rgba(0, 0, 0, 0.5); -webkit-transform: rotate(-3deg);-ms-transform:rotate(-3deg); transform:rotate(-3deg); z-index:-1;}
+			.login-box-body::after{ right:10px; left:auto; -webkit-transform:rotate(3deg); -ms-transform:rotate(3deg); transform: rotate(3deg);}
+			.login-logo{font-size: 20px;margin-bottom: 20px;color: #fff;}
+			.login-box-msg{font-weight: bold;font-size: 24px;color: #0eacda;border-bottom: 1px dashed #2eb7df;}
+			.content{padding: 20px 35px 0;transform: ;}
+			.form-control{border: none;}
+			.form-group{font-size: 14px;background: #eeeeee;color: #999999;border-radius: 5px;position: relative;}
+			.user-list{display: table;width: 100%;padding: 10px 16px;}
+			.user-list img{float: left;}
+			.user-list input{float: left;width: 83.5%;background: #eeeeee;padding: 0 !important;margin-left: 10px;text-indent: 2px;}
+			.code{display: table;background: white;}
+			.code input{width: 200px;height: 51px;background: #eeeeee;margin-right: 10px;border-radius: 5px;display: table-cell;padding-left: 20px;}
+			.code a{padding: 6px;width: 100px;height: 50px;background: #eeeeee;border-radius: 5px;display: table-cell;}
+			.code img{width: 100%;height: 100%;border-radius: 5px;}
+			.loading button{display: block;line-height: 50px;font-size: 18px;color: white;background: #0eacda;border: none;width: 100%;border-radius: 5px;margin-top: 35px;outline:none;transition: 3.5s;-webkit-transition: 3.5s;-ms-transition: 3.5s;}
+	  	@-webkit-keyframes slit {
+	  		from{-webkit-transform: rotateY(-90deg); opacity: 0;}
+	  		to{-webkit-transform: rotateY(0deg); opacity: 1; }
+	  	}
+			@keyframes slit {
+				from{ transform: rotateY(-90deg); opacity: 0;}
+				to{ transform: rotateY(0deg); opacity: 1; }
+			}
+			@media only screen and (max-width: 1440px) {
+				@-webkit-keyframes slit {from{-webkit-transform: rotateY(-90deg) scale(0.85); opacity: 0;}to{-webkit-transform: rotateY(0deg) scale(0.85); opacity: 1; }}
+				@keyframes slit {from{ transform: rotateY(-90deg) scale(0.85); opacity: 0;}to{ transform: rotateY(0deg) scale(0.85); opacity: 1; }}
+				.login-box{transform: scale(0.85);}
+				.login-box::after{top: 47px;}
+			}
+			@media only screen and (max-width: 1024px) {
+				@-webkit-keyframes slit {from{-webkit-transform: rotateY(-90deg) scale(0.75); opacity: 0;}to{-webkit-transform: rotateY(0deg) scale(0.75); opacity: 1; }}
+				@keyframes slit {from{ transform: rotateY(-90deg) scale(0.75); opacity: 0;}to{ transform: rotateY(0deg) scale(0.75); opacity: 1; }}
+				.login-box{transform: scale(0.75);}
+				.login-box::after{top: 47px;}
+			}
+			footer{width: 100%;position: fixed;bottom: 0;background: rgba(0,0,0,0.5);text-align: center;color: white;padding-top: 10px;}
+	  </style>
+</head>
+<body>
+<div class="login-box" id="rrapp" v-cloak>
+  <div class="login-logo">
+  	  广州甲由信息科技有限公司
+  </div>
+  <!-- /.login-logo -->
+  <div class="login-box-body">
+      <p class="login-box-msg">管 理 员 登 录</p>
+      <div class="content">
+	      <div v-if="error" class="alert alert-danger alert-dismissible">
+	        <h4 style="margin-bottom: 0px;"><i class="fa fa-exclamation-triangle"></i> {{errorMsg}}</h4>
+	      </div>
+	      <div class="form-group has-feedback">
+	         <div class="user-list">
+	         	<img src="statics/img/icon.miemai.png"/>
+	         	<input id="txt" type="text" class="form-control" v-model="username" placeholder="用户名">
+	         </div> 	 
+	      </div>
+	      <div class="form-group has-feedback">
+	      	<div class="user-list">
+	         	<img src="statics/img/icon.yonghuming.png"/>
+	         	<input id="pwd" type="password" class="form-control" v-model="password" placeholder="密码">
+	         </div>
+	      </div>
+	      <div class="form-group has-feedback">
+	      	<div class="code">
+	      		<input type="text" class="form-control" v-model="captcha"  @keyup.enter="login" placeholder="验证码">
+	        	<a title="如果看不清楚，请单击图片刷新！" href="javascript:;" @click="refreshCode"><img alt="如果看不清楚，请单击图片刷新！" class="pointer" :src="src" @click="refreshCode"></a>
+	      	</div>
+	      </div>
+	      <div class="loading">
+	      	 <button type="button" @click="login"  @keyup.enter="login" v-focus>登录</button>
+	      </div>
+	    <!-- /.social-auth-links -->
+	  </div>
+  </div>
+  <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+<footer>
+    	<p>版权所有 © 2017广州甲由广告传媒有限公司 粤ICP备15074609号 <br />
+  		Copyright© 2013-2017 jiayou design. All rights reserved</p>
+  </footer>
+<script src="statics/libs/jquery.min.js"></script>
+<script src="statics/libs/vue.min.js"></script>
+<script src="statics/libs/bootstrap.min.js"></script>
+<script src="statics/libs/jquery.slimscroll.min.js"></script>
+<script src="statics/libs/fastclick.min.js"></script>
+<script src="statics/libs/app.js"></script>
+<script type="text/javascript">
+
+var vm = new Vue({
+	el:'#rrapp',
+	directives: {
+	    // 注册一个局部的自定义指令 v-focus
+	    focus: {
+	      // 指令的定义
+	      inserted: function (el) {
+	        // 聚焦元素
+	        el.focus()
+	      }
+	    }
+	  },
+	data:{
+		username: '',
+		password: '',
+		captcha: '',
+		error: false,
+		errorMsg: '',
+		src: 'captcha.jpg'
+	},
+	beforeCreate: function(){
+		if(self != top){
+			top.location.href = self.location.href;
+		}
+	},
+	methods: {
+		refreshCode: function(){
+			this.src = "captcha.jpg?t=" + $.now();
+		},
+		login: function (event) {
+			var data = "username="+vm.username+"&password="+vm.password;
+			// var data = "username="+vm.username+"&password="+vm.password+"&captcha="+vm.captcha;
+			$.ajax({
+				type: "POST",
+			    url: "sys/login",
+			    data: data,
+			    dataType: "json",
+			    success: function(result){
+					if(result.code == 200){//登录成功
+						parent.location.href ='index.html';
+					} else {
+					vm.error = true;
+						vm.errorMsg = result.msg;
+					
+						vm.refreshCode();
+					}
+				}
+			});
+		}
+	}
+});
+function move(){
+	 var r = parseInt(Math.random()*255);
+   var g = parseInt(Math.random()*255);
+   var b = parseInt(Math.random()*255);
+   var colorHex = r+g+b;
+   $('.loading button').css({background:"#"+colorHex});
+}
+move();
+setInterval(move,2500);
+var maxSize = 50;
+var flake = $('<div class="xh"></div>').css('position', 'absolute').html('*');
+setInterval(function() {
+    var body = $("body");
+    var width = $(document).width();
+    var height = $(document).height();
+    var startLeft = Math.random() * width;
+    var endLeft = Math.random() * width;
+    var flakeSize = maxSize * Math.random();
+    var flakeOpacity = 0.3 + Math.random() * 0.3; 
+    var endFlakeOpacity = 0.5 + Math.random() * 0.5;
+    var durationTime = 2000 * Math.random() + 10 * height;
+    flake.clone().appendTo(body).css({
+        'left': startLeft,
+        'font-size': flakeSize,
+        'opacity': flakeOpacity,
+        'color': "#fff",
+        'top': "-50px"
+    }).animate({
+        'left': endLeft,
+        'opacity': endFlakeOpacity,
+        'top': height
+    },durationTime,function() {
+        $(this).remove(); 
+    });
+},150);
+</script>
+</body>
+</html>

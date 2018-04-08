@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppSuggestDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppSuggestEntity" id="tAppSuggestMap">
+        <result property="id" column="ID"/>
+        <result property="suggest" column="SUGGEST"/>
+        <result property="picUrl" column="PIC_URL"/>
+        <result property="contact" column="CONTACT"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TAppSuggestEntity">
+		select * from t_app_suggest where ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TAppSuggestEntity">
+		select * from t_app_suggest
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_app_suggest 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppSuggestEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_app_suggest
+		(
+			`SUGGEST`, 
+			`PIC_URL`, 
+			`CONTACT`
+		)
+		values
+		(
+			#{suggest}, 
+			#{picUrl}, 
+			#{contact}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppSuggestEntity">
+		update t_app_suggest 
+		<set>
+			<if test="suggest != null">`SUGGEST` = #{suggest}, </if>
+			<if test="picUrl != null">`PIC_URL` = #{picUrl}, </if>
+			<if test="contact != null">`CONTACT` = #{contact}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_app_suggest where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_app_suggest where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

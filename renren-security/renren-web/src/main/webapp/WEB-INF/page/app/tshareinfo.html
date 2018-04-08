@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<link href="${rc.contextPath}/statics/plugins/bootstrap_fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+#parse("sys/header.html")
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			#if($shiro.hasPermission("tshareinfo:save"))
+			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			#end
+			#if($shiro.hasPermission("tshareinfo:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			#end
+			#if($shiro.hasPermission("tshareinfo:delete"))
+			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			#end
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tShareInfo.title" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">内容</div>
+			   	<div class="col-sm-10">
+			      <textarea type="text" class="form-control" v-model="tShareInfo.content" placeholder=""></textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">图片</div>
+			   	<div class="col-sm-10">
+			      <div style="width: 1020px">
+            		<input id="share_picture_file" class="file" type="file" multiple />
+            	  </div>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">跳转链接</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tShareInfo.pathUrl" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">类型</div>
+			   	<div class="col-sm-10">
+					<select class="form-control" v-model="tShareInfo.type">
+				      	<option value="1">详情页分享内容</option>
+				      	<option value="0">个人中心分享内容</option>
+			      	</select>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+<!-- 多文件上传js插件 -->
+<script src="${rc.contextPath}/statics/plugins/bootstrap_fileinput/js/fileinput.js" type="text/javascript"></script>
+<script src="${rc.contextPath}/statics/plugins/bootstrap_fileinput/js/locales/zh.js" type="text/javascript"></script>
+
+<script src="${rc.contextPath}/js/app/tshareinfo.js?_${date.systemTime}"></script>
+<script type="text/javascript">
+$(window).load(function() {
+	$("#share_picture_file").fileinput({
+		language: 'zh',
+		uploadUrl:'../tgameinfo/uploadGameFile',
+	    maxFileCount: 1,
+	    uploadAsync:true,
+	    showUpload:false,
+        dropZoneEnabled: false,
+	    allowedFileExtensions : ['jpg','png','gif','jpeg']
+	});
+})
+</script>
+</body>
+</html>

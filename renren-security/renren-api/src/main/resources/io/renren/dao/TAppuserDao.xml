@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserEntity" id="tAppuserMap">
+        <result property="id" column="ID"/>
+        <result property="mobile" column="MOBILE"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="openid" column="OPENID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="status" column="STATUS"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TAppuserEntity">
+		select * from t_appuser where ID = #{value}
+	</select>
+	
+	<select id="queryObjectByMobile" resultType="io.renren.entity.TAppuserEntity">
+		select * from t_appuser where MOBILE = #{value}
+	</select>
+	
+	<select id="queryObjectByUsername" resultType="io.renren.entity.TAppuserEntity">
+		select * from t_appuser where USERNAME = #{value} limit 1
+	</select>
+	
+	<select id="queryObjectByOpenId" resultType="io.renren.entity.TAppuserEntity">
+		select * from t_appuser where OPENID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TAppuserEntity">
+		select * from t_appuser
+		<where>
+			<if test="mobile != null and mobile.trim() != ''">
+				and `MOBILE` = #{mobile}
+			</if>
+			<if test="username != null and username.trim() != ''">
+				and `USERNAME` like concat('%',#{username},'%') 
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserEntity">
+		insert into t_appuser
+		(
+			`ID`, 
+			`MOBILE`, 
+			`PASSWORD`, 
+			`CREATETIME`, 
+			`OPENID`, 
+			`USERNAME`,
+			`STATUS`
+		)
+		values
+		(
+			#{id}, 
+			#{mobile}, 
+			#{password}, 
+			#{createtime}, 
+			#{openid}, 
+			#{username},
+			#{status}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppuserEntity">
+		update t_appuser 
+		<set>
+			<!-- <if test="mobile != null">`MOBILE` = #{mobile}, </if> -->
+			<if test="password != null">`PASSWORD` = #{password}, </if>
+			<!--<if test="createtime != null">`CREATETIME` = #{createtime}, </if>-->
+			<if test="openid != null">`OPENID` = #{openid}, </if>
+			<!--<if test="username != null">`USERNAME` = #{username},</if>-->
+			<if test="status != null">`STATUS` = #{status}</if>
+		</set>
+		where MOBILE = #{mobile}
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserGiftsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserGiftsEntity" id="tAppuserGiftsMap">
+        <result property="id" column="ID"/>
+        <result property="appuserId" column="APPUSER_ID"/>
+        <result property="giftsId" column="GIFTS_ID"/>
+        <result property="createtime" column="CREATETIME"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TAppuserGiftsEntity">
+		select * from t_appuser_gifts where ID = #{value}
+	</select>
+	<select id="queryObjectByAppuserId" resultType="io.renren.entity.TAppuserGiftsEntity">
+		select * from t_appuser_gifts where APPUSER_ID = #{0} and GIFTS_ID=#{1} order by id desc  limit 0,1
+	</select>
+	<select id="queryList" resultType="io.renren.entity.TAppuserGiftsEntity">
+		select tg.*,tm.TITLE as giftsTitle,ta.MOBILE as userMobile
+		from t_appuser_gifts tg
+		left join t_member_gifts tm on tm.ID = tg.GIFTS_ID
+		left join t_appuser ta on ta.ID = tg.APPUSER_ID
+		<where>
+			<if test="giftsTitle != null and giftsTitle.trim() != ''">
+				and tm.TITLE like concat('%', #{giftsTitle}, '%') 
+			</if>
+			<if test="userMobile != null and userMobile.trim() != ''">
+				and ta.MOBILE =  #{userMobile}
+			</if>
+	    </where> 
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_gifts 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserGiftsEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_appuser_gifts
+		(
+			`APPUSER_ID`, 
+			`GIFTS_ID`, 
+			`CREATETIME`
+		)
+		values
+		(
+			#{appuserId}, 
+			#{giftsId}, 
+			#{createtime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppuserGiftsEntity">
+		update t_appuser_gifts 
+		<set>
+			<if test="appuserId != null">`APPUSER_ID` = #{appuserId}, </if>
+			<if test="giftsId != null">`GIFTS_ID` = #{giftsId}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser_gifts where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_gifts where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

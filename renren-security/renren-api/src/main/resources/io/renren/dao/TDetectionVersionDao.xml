@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TDetectionVersionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TDetectionVersionEntity" id="tDetectionVersionMap">
+        <result property="id" column="id"/>
+        <result property="client" column="client"/>
+        <result property="version" column="version"/>
+        <result property="versionName" column="versionName"/>
+        <result property="description" column="description"/>
+        <result property="downLoadUrl" column="downLoadUrl"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TDetectionVersionEntity">
+		select * from t_detection_version where id = #{value}
+	</select>
+	
+	<select id="queryObjectVersion" resultType="io.renren.entity.TDetectionVersionEntity">
+		select * from t_detection_version where client = #{client}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TDetectionVersionEntity">
+		select * from t_detection_version
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_detection_version 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TDetectionVersionEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_detection_version
+		(
+			`client`, 
+			`version`,
+			`versionName`, 
+			`description`,
+			downLoadUrl
+		)
+		values
+		(
+			#{client}, 
+			#{version}, 
+			#{versionName},
+			#{description},
+			#{downLoadUrl}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TDetectionVersionEntity">
+		update t_detection_version 
+		<set>
+			<if test="client != null">`client` = #{client}, </if>
+			<if test="version != null">`version` = #{version}, </if>
+			<if test="versionName != null">`versionName` = #{versionName}, </if>
+			<if test="description != null">`description` = #{description},</if>
+			<if test="downLoadUrl != null">`downLoadUrl` = #{downLoadUrl}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_detection_version where id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_detection_version where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

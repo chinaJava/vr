@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="format-detection" content="telephone=no, address=no">
+		<link rel="stylesheet" type="text/css" href="css/swiper-3.4.2.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/gift.css"/>
+		<script src="js/swiper-3.4.2.min.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<section class="warper" id="container">
+			<header>
+				<div class="head">
+					<img src="img/search_icon.png"/>
+					<div>
+						<form>					
+							<input type="search" placeholder="输入关键词搜索礼包"/>
+						</form>
+					</div>
+				</div>
+			</header>
+			<section class="gift_banner">
+				<div class="swiper-container">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide"><img src="http://bpic.588ku.com/back_pic/00/03/15/76561d20cde6c4b.jpg!ww800" /></div>
+						<div class="swiper-slide"><img src="http://bpic.588ku.com/back_pic/00/03/15/76561d20cde6c4b.jpg!ww800" /></div>
+						<div class="swiper-slide"><img src="http://bpic.588ku.com/back_pic/00/03/15/76561d20cde6c4b.jpg!ww800" /></div>
+					</div>
+					<div class="swiper-pagination"></div>
+				</div>
+			</section>
+			<section class="gift_title">
+				<img src="img/gift_icon.png"/><a href="">我的礼包 ></a>
+			</section>
+			<section class="all_gift">
+				<ul>
+					<li v-for="item in gifts"">
+						<div class="gift_pic"><img v-bind:src src=""/></div>
+						<h3 v-text="item.title"></h3>
+						<div class="gift_det" ><div v-text="['礼包：'+item.amount+'款']"></div><span><img src="img/cost_icon.png"/>价值：5-10</span></div>
+					</li>
+				</ul>
+			</section>
+		</section>
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		<script type="text/javascript" src="js/gift.js" ></script>
+		<script type="text/javascript">
+			var mySwiper = new Swiper('.swiper-container',{
+				pagination : '.swiper-pagination',
+				loop : true,
+				paginationClickable :true,
+				autoplay : 3000,
+				autoplayDisableOnInteraction : false,
+			})
+		</script>
+	</body>
+</html>

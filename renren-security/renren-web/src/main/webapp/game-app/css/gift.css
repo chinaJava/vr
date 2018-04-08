@@ -1,0 +1,125 @@
+*{
+	margin: 0;
+	padding: 0;
+	outline: none;
+	list-style: none;
+	text-decoration: none;
+	-webkit-tap-highlight-color: transparent;
+	border: none;
+}
+html,body{
+	font-size: 62.5%;
+	background: #dedede;
+}
+.warper{
+	max-width: 640px;
+	margin: auto;
+}
+header{
+	padding: .7rem 1.5rem;
+}
+.head{
+	background: #fff;
+	border-radius: 10px;
+	display: flex;
+	display: -webkit-flex;
+	padding: .5rem 1rem;
+}
+.head div{
+	flex: 1;
+	-webkit-flex: 1;
+}
+.head img{
+	height: 2rem;
+}
+.head input{
+	width: 100%;
+	font-size: 1.5rem;
+	margin: .3rem 0 0 1rem;
+}
+.head input::-webkit-input-placeholder{
+	font-size: 1.5rem;
+	color: #929292;
+}
+.gift_title{
+	padding: 1.3rem 1.5rem 1.5rem;
+	border-bottom: 1px solid #e5e5e5;
+	display: flex;
+	display: -webkit-flex;
+}
+.gift_title img{
+	height: 1.8rem;
+}
+.gift_title a{
+	flex: 1;
+	-webkit-flex: 1;
+	color: #2e90d7;
+	text-align: right;
+	font-size: 1.8rem; 
+}
+.gift_banner img{
+	width: 100%;
+}
+.swiper-pagination-bullet{
+	background: #6b6d6a;
+}
+.swiper-pagination-bullet-active{
+	background: #fff;
+}
+.swiper-pagination{
+	text-align: right;
+	width: 97% !important;
+}
+.all_gift ul{
+	display: table;
+	width: 100%;
+	background: #fff;
+}
+.all_gift li{
+	width: 50%;
+	float: left;
+	padding: 1.1rem;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+.all_gift li:nth-of-type(odd){
+	border-right: 1px solid #f1f1f1;
+	border-bottom: 1px solid #f1f1f1;
+}
+.all_gift li:nth-of-type(even){
+	border-bottom: 1px solid #f1f1f1;
+	/* margin-top: -1px; */
+}
+.gift_pic img{
+	width: 100%;
+	height: 100%;
+}
+.all_gift h3{
+	color: #0f0f0f;
+	font-size: 1.8rem;
+	font-weight: normal;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	overflow:hidden;
+}
+.gift_det{
+	font-size: 1.3rem;
+	margin-top: .8rem;
+	color: #676767;
+	display: flex;
+	display: -webkit-flex;
+}
+.gift_det div{
+	flex: 1;
+	-webkit-flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.gift_det img{
+	height: 1.2rem;
+	margin-right: .3rem;
+	position: relative;
+	top: .1rem;
+}

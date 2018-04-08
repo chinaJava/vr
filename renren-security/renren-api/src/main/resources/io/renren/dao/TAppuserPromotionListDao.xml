@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserPromotionListDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserPromotionListEntity" id="tAppuserPromotionListMap">
+        <result property="id" column="ID"/>
+        <result property="appuserId" column="APPUSER_ID"/>
+        <result property="promotionUserid" column="PROMOTION_USERID"/>
+        <result property="status" column="STATUS"/>
+        <result property="gainPoints" column="GAIN_POINTS"/>
+    </resultMap>
+	<select id="queryDetail" resultType="io.renren.entity.TAppuserPromotionListEntity">
+		select tp.*,ta.MOBILE as userMobile,tap.MOBILE as promotionMobile
+		from t_appuser_promotion_list tp 
+		left join t_appuser ta on ta.ID = tp.APPUSER_ID
+		left join t_appuser tap on tap.ID = tp.PROMOTION_USERID 
+		where APPUSER_ID = #{id}
+		<if test="userMobile != null and userMobile.trim() != ''">
+			and ta.MOBILE = #{userMobile}
+		</if>
+		<if test="promotionMobile != null and promotionMobile.trim() != ''">
+			and tap.MOBILE = #{promotionMobile}
+		</if>
+		<if test="status != null and status.trim() != ''">
+			and tp.STATUS =  #{status}
+		</if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="queryObject" resultType="io.renren.entity.TAppuserPromotionListEntity">
+		select * from t_appuser_promotion_list where ID = #{value}
+	</select>
+	
+	<select id="queryObjectByPromotionUserId" resultType="io.renren.entity.TAppuserPromotionListEntity">
+		select * from t_appuser_promotion_list where PROMOTION_USERID = #{value} limit 1
+	</select>
+	
+	<select id="queryListByUserId" resultType="io.renren.entity.TAppuserPromotionListEntity">
+		select tap.*,ta.MOBILE as promotionMobile,td.HEAD_PIC as promotionHeadPic,td.NIKENAME as promotionName,
+			   td.MEMBER_LEVEL_ID as promotionMemberLevelId
+		from t_appuser_promotion_list tap
+		left join t_appuser_detail td on td.APPUSERID = tap.PROMOTION_USERID
+		left join t_appuser ta on ta.ID = tap.PROMOTION_USERID
+		where tap.APPUSER_ID = #{value}
+		order by STATUS desc
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TAppuserPromotionListEntity">
+		select tp.*,ta.MOBILE as userMobile,tap.MOBILE as promotionMobile
+		from t_appuser_promotion_list tp 
+		left join t_appuser ta on ta.ID = tp.APPUSER_ID
+		left join t_appuser tap on tap.ID = tp.PROMOTION_USERID
+		<where>
+			<if test="userMobile != null and userMobile.trim() != ''">
+				and ta.MOBILE = #{userMobile}
+			</if>
+			<if test="promotionMobile != null and promotionMobile.trim() != ''">
+				and tap.MOBILE = #{promotionMobile}
+			</if>
+			<if test="status != null and status.trim() != ''">
+				and tp.STATUS =  #{status}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="queryPromotionList" resultType="io.renren.entity.TAppuserPromotionListEntity">
+		<!-- 
+		select tp.*,ta.MOBILE as userMobile,tap.MOBILE as promotionMobile,tmt.NAME as memberLevel,tad.MEMBER_END_TIME as memberEndTime,tad.POINT_TOTAL as pointTotal,tad.POINT as point,tmp.promotionNum 
+		from t_appuser_promotion_list tp 
+		left join t_appuser ta on ta.ID = tp.APPUSER_ID
+		left join t_appuser tap on tap.ID = tp.PROMOTION_USERID 
+		left join (select tmi.NAME,tad.APPUSERID from t_member_info tmi left join t_appuser_detail tad on tmi.ID=tad.MEMBER_LEVEL_ID) tmt on tmt.APPUSERID=tp.APPUSER_ID
+		left join t_appuser_detail tad on tad.APPUSERID=tp.APPUSER_ID
+		left join (SELECT APPUSER_ID,count(promotion_userid) as promotionNum from t_appuser_promotion_list GROUP BY APPUSER_ID) tmp on tmp.APPUSER_ID =tp.APPUSER_ID
+		GROUP BY APPUSER_ID
+		-->
+		SELECT ta.ID,tp.APPUSER_ID,tp.promotionNum,ta.MOBILE AS userMobile,
+			   tmt.NAME AS memberLevel,tmt.MEMBER_END_TIME AS memberEndTime,tmt.POINT_TOTAL AS pointTotal,tmt.POINT as point
+		FROM (
+			SELECT APPUSER_ID,COUNT(promotion_userid) AS promotionNum
+			FROM t_appuser_promotion_list 
+			GROUP BY APPUSER_ID
+		) tp 
+		LEFT JOIN t_appuser ta ON ta.ID = tp.APPUSER_ID
+		LEFT JOIN (
+			SELECT tmi.NAME,tad.APPUSERID,tad.MEMBER_END_TIME,tad.POINT_TOTAL,tad.POINT
+		 	FROM t_member_info tmi 
+		 	LEFT JOIN t_appuser_detail tad ON tmi.ID=tad.MEMBER_LEVEL_ID
+		) tmt ON tmt.APPUSERID=tp.APPUSER_ID
+		<where>
+			<if test="userMobile != null and userMobile.trim() != ''">
+				and ta.MOBILE = #{userMobile}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ta.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_promotion_list
+	</select>
+	<select id="queryTotalByAppuserId" resultType="int">
+		select count(*) from t_appuser_promotion_list where APPUSER_ID=(select APPUSER_ID from t_appuser_promotion_list where ID=#{id})
+	</select>
+	
+ 	<select id="queryTotalValid" resultType="int">
+		select count(*) from t_appuser_promotion_list where STATUS = '1'
+	</select>
+	
+ 	<select id="queryMemberValid" resultType="int">
+		SELECT tm.VALID_NUMBER
+		FROM t_appuser_detail td 
+		LEFT JOIN t_member_info tm ON tm.ID = td.MEMBER_LEVEL_ID
+		where td.APPUSERID = #{value}
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserPromotionListEntity">
+		insert into t_appuser_promotion_list
+		(
+			`ID`, 
+			`APPUSER_ID`, 
+			`PROMOTION_USERID`, 
+			`STATUS`, 
+			`GAIN_POINTS`
+		)
+		values
+		(
+			#{id}, 
+			#{appuserId}, 
+			#{promotionUserid}, 
+			#{status}, 
+			#{gainPoints}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppuserPromotionListEntity">
+		update t_appuser_promotion_list 
+		<set>
+			<if test="appuserId != null">`APPUSER_ID` = #{appuserId}, </if>
+			<if test="promotionUserid != null">`PROMOTION_USERID` = #{promotionUserid}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="gainPoints != null">`GAIN_POINTS` = #{gainPoints}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser_promotion_list where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_promotion_list where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

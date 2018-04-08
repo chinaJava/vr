@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<style type="text/css">
+	.list-group{
+		width: 370px;
+		margin-left: 15px;
+		display: none;
+	}
+	.list-group li:hover{
+		background: #333333;
+		color: white;
+		cursor: pointer;
+	}
+	.list{
+		float:left;
+		margin-left: 0;		
+	}
+	.tip{
+		color:red;
+	}
+</style>
+<link href="${rc.contextPath}/statics/plugins/jq_cropbox/css/style.css" type="text/css" rel="stylesheet"/>
+<link href="${rc.contextPath}/js/umeditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+<link href="${rc.contextPath}/statics/plugins/bootstrap_fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+
+#parse("sys/header.html")
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<div class="form-group col-sm-2" style="width: 15%">
+				<input type="text" id="autocomplete" class="form-control" v-model="q.name" @keyup.enter="query" placeholder="游戏名">
+				<input type="hidden" id="gameId_auto">
+			</div>
+			<div class="form-group col-sm-2" style="width: 12%">
+				<select id="gameType_query" class="form-control" v-model="q.typeid" @keyup.enter="query"></select>
+			</div>
+			<div class="form-group col-sm-2" style="width: 10%">
+				<select class="form-control" v-model="q.ischarge" @keyup.enter="query">
+					<option value="">是否收费</option>
+			      	<option value="0">免费</option>
+					<option value="1">收费</option>
+				</select>
+			</div>
+			<div class="form-group col-sm-2" style="width: 10%">
+				<select class="form-control" v-model="q.isHotGame" @keyup.enter="query">
+					<option value="">是否热门</option>
+					<option value="1">是</option>
+			      	<option value="0">否</option>
+				</select>
+			</div>
+			<div class="form-group col-sm-2" style="width: 10%">
+				<select class="form-control" v-model="q.isBoutique" @keyup.enter="query">
+					<option value="">是否精品</option>
+					<option value="1">是</option>
+			      	<option value="0">否</option>
+				</select>
+			</div>
+			
+			<a class="btn btn-default" @click="query">查询</a>
+		
+			#if($shiro.hasPermission("tgameinfo:save"))
+			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			#end
+			#if($shiro.hasPermission("tgameinfo:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			#end
+			#if($shiro.hasPermission("tgameinfo:update"))
+			<a class="btn btn-primary" @click="shelves"><i class="fa fa-pencil-square-o"></i>&nbsp;上架</a>
+			#end
+			#if($shiro.hasPermission("tgameinfo:update"))
+			<a class="btn btn-primary" @click="shelf"><i class="fa fa-pencil-square-o"></i>&nbsp;下架</a>
+			#end
+			#if($shiro.hasPermission("tgameinfo:delete"))
+			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			#end
+			
+		</div>
+		<ul class="list-group"></ul>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏名称<p class="tip">*必填项</p></div>
+			   	<div class="col-sm-10">
+			      <input type="text" id="game-list" class="form-control" v-model="tGameInfo.name" placeholder="游戏名称"   />
+			       <ul class="list-group list"></ul>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏图标</div>
+			   	<div class="col-sm-10">
+			   		<img  id="game_logo_url" src="" style="width: 80px;height: 80px;-moz-border-radius: 15px;-webkit-border-radius: 15px;border-radius:15px;" hidden="hidden"/>
+					<div class="container_logo">
+						<div class="imageBox">
+							<div class="thumbBox"></div>
+							<div class="spinner" style="display: none">Loading...</div>
+						</div>
+						<div class="action"> 
+							<!-- <input type="file" id="file" style=" width: 200px">-->
+							<div class="new-contentarea tc"> <a href="javascript:void(0)" class="upload-img">
+								<label for="upload-file">上传图像</label>
+								</a>
+								<input type="file" class="" name="upload-file" id="upload-file" />
+							</div>
+							<input type="button" id="btnCrop"  class="Btnsty_peyton" value="裁切">
+							<input type="button" id="btnZoomIn" class="Btnsty_peyton" value="+"  >
+							<input type="button" id="btnZoomOut" class="Btnsty_peyton" value="-" >
+						</div>
+						<div class="cropped"></div>
+					</div>			    
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">简介</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.summary" placeholder="简介"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">包名（IOS）<p class="tip">*必填项</p></div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.packageNameIos" placeholder="请填写IOS游戏的包名"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">包名（安卓）<p class="tip">*必填项</p></div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.packageNameAndroid" placeholder="请填写安卓游戏的包名"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">安卓游戏大小(byte)</div>
+			   	<div class="col-sm-10">
+			      <input type="text" id="gameSize" class="form-control" v-model="tGameInfo.sizeAndroid" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">IOS游戏大小(M)</div>
+			   	<div class="col-sm-10">
+			      <input type="text" id="gameSizeIos" class="form-control" v-model="tGameInfo.sizeIos" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">是否收费</div>
+			   	<div class="col-sm-10">
+			      <select class="form-control" v-model="tGameInfo.ischarge">
+			      	<option value="1">收费</option>
+			      	<option value="0">免费</option>
+			      </select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">下载所需积分</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.downloadPoints" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">语言</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.language" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏类型<p class="tip">*必填项</p></div>
+			   	<div class="col-sm-10">
+			      <select id="gameType_add" class="form-control" v-model="tGameInfo.typeid"></select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏介绍</div>
+			   	<div class="col-sm-10">
+			      <textarea rows="20" cols="100" class="form-control" id="gameIntroduce">
+				  </textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">更新内容</div>
+			   	<div class="col-sm-10">
+			      <textarea rows="20" cols="100" class="form-control" id="gameUpdateContent">
+				  </textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">当前版本(安卓)</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.versionAndroid" placeholder=""/>
+			    	<span class="tip">格式:小数(1.1)或整数(1)类型</span>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">当前版本(IOS)</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.versionIos" placeholder=""/>
+			    	<span class="tip">格式:小数(1.1)或整数(1)类型</span>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">星级</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.starLevel" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">是否推荐</div> 
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline1"  value="0" v-model="tGameInfo.isRecommend"/> 否
+				</label>
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline1"  value="1" v-model="tGameInfo.isRecommend"/> 是
+				</label>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">是否热门</div> 
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline2"  value="0" v-model="tGameInfo.isHotGame"/> 否
+				</label>
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline2"  value="1" v-model="tGameInfo.isHotGame"/> 是
+				</label>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">是否精品</div> 
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline3"  value="0" v-model="tGameInfo.isBoutique"/> 否
+				</label>
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline3"  value="1" v-model="tGameInfo.isBoutique"/> 是
+				</label>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">是否新品</div> 
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline4"  value="0" v-model="tGameInfo.isNewGame"/> 否
+				</label>
+				<label class="radio-inline">
+				  <input type="radio" name="optionsRadiosinline4" value="1" v-model="tGameInfo.isNewGame"/> 是
+				</label>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏标签<p class="tip">*必选项</p></div>
+			   	<div class="col-sm-10" id="gameLabelDiv"></div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">安卓游戏包</div>
+			   	<div class="col-sm-10">
+			   		<div style="width: 750px">
+				   	  <input type="hidden" id="gameFileSize_hidden">
+				   	  <input type="hidden" id="gameFileUrl_hidden">
+				      <input type="file" id="gameFile" multiple/>
+			      	</div>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏视频</div>
+			   	<div class="col-sm-10">
+			   	  <input type="hidden" id="gameVideoUrl_hidden">
+			   	  <video id="game_video_url" v-if="tGameInfo.gameVideoUrl != null" src="" width="320" height="240" controls autobuffer></video>
+			      <input type="file" id="gameVideoFile"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">页面游戏地址</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.gameUrlH5" placeholder="H5游戏地址"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">苹果下载地址</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.downloadingIosUrl" placeholder="苹果下载地址"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">苹果下载量</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.downloadingIosNum" placeholder="苹果下载量"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">安卓下载地址</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.downloadingAndroidUrl" placeholder="安卓下载地址"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">安卓下载量</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tGameInfo.downloadingAndroidNum" placeholder="安卓下载量"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏图片<p class="tip">*必选项</p></div>
+			   	<div class="col-sm-10">
+			   		<div id="gamePicFileDiv" style="width: 1020px">
+	            		<input id="game_picture_file" class="file" type="file" multiple />
+	            	</div>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏渠道<p class="tip">*必选项</p></div>
+			   	<div class="col-sm-10">
+			      <select class="form-control" v-model="tGameInfo.gameChannel">
+			      	<option value="1">安卓游戏</option>
+			      	<option value="2">IOS游戏</option>
+			      	<option value="3">双端游戏</option>
+			      </select>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="${rc.contextPath}/js/app/tgameinfo.js?_${date.systemTime}"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/third-party/template.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/lang/zh-cn/zh-cn.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/plugins/jq_cropbox/js/cropbox.js"></script>
+<!-- 多文件上传js插件 -->
+<script src="${rc.contextPath}/statics/plugins/bootstrap_fileinput/js/fileinput.js" type="text/javascript"></script>
+<script src="${rc.contextPath}/statics/plugins/bootstrap_fileinput/js/locales/zh.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+$(window).load(function() {
+	var options =
+	{
+		thumbBox: '.thumbBox',
+		spinner: '.spinner',
+		imgSrc: '${rc.contextPath}/statics/plugins/jq_cropbox/image/avatar.png'
+		
+	}
+	var cropper = $('.imageBox').cropbox(options);
+	$('#upload-file').on('change', function(){
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			options.imgSrc = e.target.result;
+			cropper = $('.imageBox').cropbox(options);
+		}
+		reader.readAsDataURL(this.files[0]);
+		this.files = [];
+	})
+	$('#btnCrop').on('click', function(){
+		var img = cropper.getDataURL();
+		$('.cropped').html('');
+		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:64px;margin-top:4px;border-radius:64px;box-shadow:0px 0px 12px #7E7E7E;" ><p>64px*64px</p>');
+		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:128px;margin-top:4px;border-radius:128px;box-shadow:0px 0px 12px #7E7E7E;"><p>128px*128px</p>');
+		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:180px;margin-top:4px;border-radius:180px;box-shadow:0px 0px 12px #7E7E7E;"><p>180px*180px</p>');
+	})
+	$('#btnZoomIn').on('click', function(){
+		cropper.zoomIn();
+	})
+	$('#btnZoomOut').on('click', function(){
+		cropper.zoomOut();
+	})
+	
+	$("#game_picture_file").fileinput({
+		language: 'zh',
+		uploadUrl:'../tgameinfo/uploadGameFile',
+	    maxFileCount: 10,
+	    uploadAsync:true,
+	    showUpload:false,
+        dropZoneEnabled: false,
+	    allowedFileExtensions : ['jpg','png','gif','jpeg']
+	});
+	$("#gameFile").fileinput({
+		language: 'zh',
+	    uploadUrl:'../tgameinfo/uploadGameInfoFile',
+	    maxFileCount: 5,
+	    uploadAsync:true,
+	    //showUpload:false,
+	    //showPreview:false,
+	    //enctype: 'multipart/form-data',
+        dropZoneEnabled: false
+	});
+	$("#gameFile").on("fileuploaded", function (event, data, previewId, index) {
+        if(data.response.code==200){
+        	if($("#gameFileUrl_hidden").val()!=null && $("#gameFileUrl_hidden").val()!=""){
+        		var val_file = $("#gameFileUrl_hidden").val();
+        		$("#gameFileUrl_hidden").val(val_file+";"+data.response.path);
+        	}else{
+        		$("#gameFileUrl_hidden").val(data.response.path);
+        	}
+        	
+        	if($("#gameFileSize_hidden").val()!=null && $("#gameFileSize_hidden").val()!=""){
+	       		var val_size = $("#gameFileSize_hidden").val();
+	       		var total_size = parseInt(val_size)+parseInt(data.response.size);
+        		$("#gameFileSize_hidden").val(total_size);
+        	}else{
+        		$("#gameFileSize_hidden").val(data.response.size);
+        	}
+        }
+    }).on('fileerror', function(event, data, msg) {
+        console.log('文件上传失败！'+data.id);
+    });
+	$("#gameVideoFile").fileinput({
+		language: 'zh',
+		uploadUrl:'../tgameinfo/uploadGameInfoFile',
+	    maxFileCount: 1,
+	    uploadAsync:true,
+	    //showUpload:false,
+	    showPreview:false,
+        dropZoneEnabled: false
+	});
+	$("#gameVideoFile").on("fileuploaded", function (event, data, previewId, index) {
+        if(data.response.code==200){
+        	$("#gameVideoUrl_hidden").val(data.response.path);
+        }
+    }).on('fileerror', function(event, data, msg) {
+        console.log('文件上传失败！'+data.id);
+    });
+	
+});
+
+</script>
+
+</body>
+</html>

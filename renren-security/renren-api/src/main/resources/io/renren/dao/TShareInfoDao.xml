@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TShareInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TShareInfoEntity" id="tShareInfoMap">
+        <result property="id" column="ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="pic" column="PIC"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="pathUrl" column="PATH_URL"/>
+        <result property="type" column="TYPE"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TShareInfoEntity">
+		select * from t_share_info where ID = #{value}
+	</select>
+	
+	<select id="queryShareInfo" resultType="io.renren.entity.TShareInfoEntity">
+		select * from t_share_info where TYPE = #{value} order by ID desc limit 1
+	</select>
+	
+
+	<select id="queryList" resultType="io.renren.entity.TShareInfoEntity">
+		select * from t_share_info
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_share_info 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TShareInfoEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_share_info
+		(
+			`TITLE`, 
+			`CONTENT`, 
+			`PIC`, 
+			`PATH_URL`, 
+			`TYPE`, 
+			`CREATETIME`
+		)
+		values
+		(
+			#{title}, 
+			#{content}, 
+			#{pic}, 
+			#{pathUrl}, 
+			#{type}, 
+			#{createtime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TShareInfoEntity">
+		update t_share_info 
+		<set>
+			<if test="title != null">`TITLE` = #{title}, </if>
+			<if test="content != null">`CONTENT` = #{content}, </if>
+			<if test="pic != null">`PIC` = #{pic}, </if>
+			<if test="pathUrl != null">`PATH_URL` = #{pathUrl}, </if>
+			<if test="type != null">`TYPE` = #{type}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_share_info where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_share_info where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

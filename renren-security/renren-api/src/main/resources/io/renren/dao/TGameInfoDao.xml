@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TGameInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TGameInfoEntity" id="tGameInfoMap">
+        <result property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="sizeIos" column="SIZE_IOS"/>
+        <result property="sizeAndroid" column="SIZE_ANDROID"/>
+        <result property="summary" column="SUMMARY"/>
+        <result property="ischarge" column="ISCHARGE"/>
+        <result property="typeid" column="TYPEID"/>
+        <result property="logoUrl" column="LOGO_URL"/>
+        <result property="versionIos" column="VERSION_IOS"/>
+        <result property="versionAndroid" column="VERSION_ANDROID"/>
+        <result property="introduce" column="INTRODUCE"/>
+        <result property="language" column="LANGUAGE"/>
+        <result property="updateContent" column="UPDATE_CONTENT"/>
+        <result property="starLevel" column="STAR_LEVEL"/>
+        <result property="downloadingIosUrl" column="DOWNLOADING_IOS_URL"/>
+        <result property="downloadingIosNum" column="DOWNLOADING_IOS_NUM"/>
+        <result property="downloadingAndroidUrl" column="DOWNLOADING_ANDROID_URL"/>
+        <result property="downloadingAndroidNum" column="DOWNLOADING_ANDROID_NUM"/>
+        <result property="gameUrl" column="GAME_URL"/>
+        <result property="gameVideoUrl" column="GAME_VIDEO_URL"/>
+        <result property="isRecommend" column="IS_RECOMMEND"/>
+        <result property="status" column="STATUS"/>
+        <result property="gamePictureUrl" column="GAME_PICTURE_URL"/>
+        <result property="isHotGame" column="IS_HOTGAME"/>
+        <result property="isBoutique" column="IS_BOUTIQUE"/>
+        <result property="isNewGame" column="IS_NEWGAME"/>
+        <result property="packageNameIos" column="PACKAGE_NAME_IOS"/>
+        <result property="packageNameAndroid" column="PACKAGE_NAME_ANDROID"/>
+        <result property="gameUrlH5" column="GAME_URL_H5"/>
+        <result property="gameChannel" column="GAME_CHANNEL"/>
+        <result property="downloadPoints" column="DOWNLOAD_POINTS"/>
+    </resultMap>
+    
+	<select id="queryObject" resultType="io.renren.entity.TGameInfoEntity">
+		select * from t_game_info where ID = #{value}
+	</select>
+	
+	<!--根据游戏名字查询游戏id-->
+	<select id="queryObjectName" resultType="io.renren.entity.TGameInfoEntity">
+		select * from t_game_info where NAME = #{name} limit 1
+	</select>
+	
+	<!-- 根据游戏id查询游戏临时标签表 -->
+	<select id="queryListByGameId" resultType="io.renren.entity.TGameLabelTempEntity">
+		select * from t_game_label_temp where GAMEID = #{value}
+	</select>
+	
+	<!-- 根据游戏ID，查询游戏标签 -->
+	<select id="queryListByLabelId" resultType="io.renren.entity.TGameLabelTempEntity">
+		SELECT temp.*,label.name as labelName 
+ 		from t_game_label_temp temp 
+ 		LEFT JOIN t_game_label label on label.id=temp.labelid
+		where temp.GAMEID =#{value}
+	</select>
+	<!-- 根据推荐字段查询游戏临时标签表 -->
+	<select id="queryListByReCommend" resultType="io.renren.entity.TGameRecommentEntity">
+		select * from RECOMMEND_VIEW where IS_RECOMMEND=1
+	</select>
+	<select id="queryGameName" resultType="io.renren.entity.TGameInfoEntity">
+		select ID,NAME from t_game_info 
+		<where>
+				STATUS=1
+			<if test="name != null">and NAME like concat('%',#{name},'%')</if>
+		</where>
+		limit 0, 5
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TGameInfoEntity">
+		select tg.*,tt.NAME as typeName
+		 from t_game_info tg 
+		left join t_game_type tt on tt.ID = tg.TYPEID
+		<where>
+			<if test="name != null and name.trim() != ''">
+				and tg.NAME like concat(concat('%',#{name}),'%')
+			</if>
+			<if test="null != typeid ">
+				and tg.TYPEID = #{typeid}
+			</if>
+			<if test="ischarge != null and ischarge.trim() != ''">
+				and tg.ISCHARGE = #{ischarge}
+			</if>
+			<if test="isRecommend!=null">and IS_RECOMMEND=#{isRecommend}</if>
+			
+			<if test="isHotGame!=null and isHotGame.trim() != ''">
+				and tg.IS_HOTGAME=#{isHotGame}
+			</if>
+			<if test="isBoutique!=null and isBoutique.trim() != ''">
+				and tg.IS_BOUTIQUE=#{isBoutique}
+			</if>
+			<if test="isNewGame!=null and isNewGame.trim() != ''">
+				and tg.IS_NEWGAME=#{isNewGame}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by tg.${sidx} ${order} 
+            </when>
+			<otherwise>
+                order by tg.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="queryListByType" resultType="io.renren.entity.TGameInfoEntity">
+		select tg.*,tt.NAME as typeName
+		from t_game_info tg 
+		left join t_game_type tt on tt.ID = tg.TYPEID
+		<where>
+			<if test="typeId != null">
+				and tg.TYPEID in( select ID from t_game_type where PID =#{typeId} or ID = #{typeId})
+			</if>
+			<if test="isRecommend!=null  ">
+				and tg.IS_RECOMMEND=#{isRecommend}
+			</if>
+			<if test="isHotGame!=null and isHotGame.trim() != ''">
+				and tg.IS_HOTGAME=#{isHotGame}
+			</if>
+			<if test="isBoutique!=null and isBoutique.trim() != ''">
+				and tg.IS_BOUTIQUE=#{isBoutique}
+			</if>
+			<if test="ischarge!=null and ischarge.trim() != ''">
+				and tg.ISCHARGE=#{ischarge}
+			</if>
+			<if test="isNewGame!=null and isNewGame.trim() != ''">
+				and tg.IS_NEWGAME=#{isNewGame}
+			</if>
+			<if test="status!=null ">
+				and tg.STATUS=#{status}
+			</if>
+			<if test="gameChannel!=null and gameChannel.trim() != ''">
+				and ( tg.GAME_CHANNEL=#{gameChannel} or tg.GAME_CHANNEL='3')
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by tg.${sidx} ${order}
+            </when>
+			<otherwise>
+                order by tg.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_game_info 
+	</select>
+	
+	<select id="queryAllGame" resultType="io.renren.entity.TGameInfoEntity">
+		select * from t_game_info 
+		where STATUS = '1'
+		<if test="gameChannel!=null and gameChannel.trim() != ''">
+			and ( GAME_CHANNEL=#{gameChannel} or GAME_CHANNEL='3')
+		</if>
+	</select>
+	
+	<select id="queryARorVRGame" resultType="io.renren.entity.TGameInfoEntity">
+		select * from t_game_info tg
+		left join t_game_type tt on tt.ID = tg.TYPEID
+		where (tt.NAME like concat('AR','%') or tt.NAME like concat('VR','%')) and tg.STATUS = '1'
+		<if test="gameChannel!=null and gameChannel.trim() != ''">
+			and ( tg.GAME_CHANNEL=#{gameChannel} or tg.GAME_CHANNEL='3')
+		</if>
+		<choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by tg.${sidx} ${order}
+            </when>
+			<otherwise>
+                order by tg.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<!-- 游戏标签临时表批量添加 -->
+	<insert id="saveByGameIdAndLable" parameterType="io.renren.entity.TGameInfoEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_label_temp
+		(
+			GAMEID,
+			LABELID
+		)
+		values
+		<foreach collection="list" item="gameLableTemps"  separator="," index="index">
+			(#{gameLableTemps.gameid},#{gameLableTemps.labelid})
+		</foreach>
+	</insert>
+	 
+	<insert id="save" parameterType="io.renren.entity.TGameInfoEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_info
+		(
+			`NAME`, 
+			`SIZE_IOS`, 
+			`SIZE_ANDROID`, 
+			`SUMMARY`, 
+			`ISCHARGE`, 
+			`DOWNLOADING_ANDROID_NUM`, 
+			`TYPEID`, 
+			`LOGO_URL`, 
+			`VERSION_IOS`, 
+			`VERSION_ANDROID`, 
+			`INTRODUCE`, 
+			`LANGUAGE`, 
+			`UPDATE_CONTENT`, 
+			`STAR_LEVEL`, 
+			`DOWNLOADING_IOS_URL`, 
+			`DOWNLOADING_ANDROID_URL`, 
+			`DOWNLOADING_IOS_NUM`,
+			`GAME_URL`,
+			`GAME_URL_H5`,
+			`GAME_CHANNEL`,
+			`GAME_PICTURE_URL`,
+			`IS_HOTGAME`,
+			`IS_BOUTIQUE`,
+			`IS_RECOMMEND`,
+			`IS_NEWGAME`,
+			`STATUS`,
+			`PACKAGE_NAME_IOS`,
+			`PACKAGE_NAME_ANDROID`,
+			`DOWNLOAD_POINTS`
+		)
+		values
+		(
+			#{name}, 
+			#{sizeIos}, 
+			#{sizeAndroid}, 
+			#{summary}, 
+			#{ischarge}, 
+			#{downloadingAndroidNum}, 
+			#{typeid}, 
+			#{logoUrl}, 
+			#{versionIos}, 
+			#{versionAndroid}, 
+			#{introduce}, 
+			#{language}, 
+			#{updateContent}, 
+			#{starLevel}, 
+			#{downloadingIosUrl}, 
+			#{downloadingAndroidUrl}, 
+			#{downloadingIosNum},
+			#{gameUrl},
+			#{gameUrlH5},
+			#{gameChannel},
+			#{gamePictureUrl},
+			#{isHotGame},
+			#{isBoutique},
+			#{isRecommend},
+			#{isNewGame},
+			#{status},
+			#{packageNameIos},
+			#{packageNameAndroid},
+			#{downloadPoints}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TGameInfoEntity">
+		update t_game_info 
+		<set>
+			<if test="name != null">`NAME` = #{name}, </if>
+			<if test="sizeIos != null">`SIZE_IOS` = #{sizeIos}, </if>
+			<if test="sizeAndroid != null">`SIZE_ANDROID` = #{sizeAndroid}, </if>
+			<if test="summary != null">`SUMMARY` = #{summary}, </if>
+			<if test="ischarge != null">`ISCHARGE` = #{ischarge}, </if>
+			<if test="downloadingAndroidNum != null">`DOWNLOADING_ANDROID_NUM` = #{downloadingAndroidNum}, </if>
+			<if test="typeid != null">`TYPEID` = #{typeid}, </if>
+			<if test="logoUrl != null">`LOGO_URL` = #{logoUrl}, </if>
+			<if test="versionIos != null">`VERSION_IOS` = #{versionIos}, </if>
+			<if test="versionAndroid != null">`VERSION_ANDROID` = #{versionAndroid}, </if>
+			<if test="introduce != null">`INTRODUCE` = #{introduce}, </if>
+			<if test="language != null">`LANGUAGE` = #{language}, </if>
+			<if test="updateContent != null">`UPDATE_CONTENT` = #{updateContent}, </if>
+			<if test="starLevel != null">`STAR_LEVEL` = #{starLevel}, </if>
+			<if test="downloadingIosUrl != null">`DOWNLOADING_IOS_URL` = #{downloadingIosUrl}, </if>
+			<if test="downloadingAndroidUrl != null">`DOWNLOADING_ANDROID_URL` = #{downloadingAndroidUrl}, </if>
+			<if test="downloadingIosNum != null">`DOWNLOADING_IOS_NUM` = #{downloadingIosNum},</if>
+			<if test="gameUrl != null">`GAME_URL` = #{gameUrl},</if>
+			<if test="gameUrlH5 != null">`GAME_URL_H5` = #{gameUrlH5},</if>
+			<if test="gameChannel != null">`GAME_CHANNEL` = #{gameChannel},</if>
+			<if test="isRecommend != null">`IS_RECOMMEND` = #{isRecommend},</if>
+			<if test="gamePictureUrl != null">`GAME_PICTURE_URL` = #{gamePictureUrl},</if>
+			<if test="isHotGame != null">`IS_HOTGAME` = #{isHotGame},</if>
+			<if test="isBoutique != null">`IS_BOUTIQUE` = #{isBoutique},</if>
+			<if test="isNewGame != null">`IS_NEWGAME` = #{isNewGame},</if>
+			<if test="status != null">`STATUS` = #{status},</if>
+			<if test="packageNameIos != null">`PACKAGE_NAME_IOS` = #{packageNameIos},</if>
+			<if test="downloadPoints != null">`DOWNLOAD_POINTS` = #{downloadPoints},</if>
+			<if test="packageNameAndroid != null">`PACKAGE_NAME_ANDROID` = #{packageNameAndroid}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<!-- 根据游戏ID，删除与游戏绑定的标签 -->
+	<delete id="deleteByGameId">
+		delete from t_game_label_temp where GAMEID = #{value}
+	</delete>
+	
+	<delete id="delete">
+		delete from t_game_info where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_game_info where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

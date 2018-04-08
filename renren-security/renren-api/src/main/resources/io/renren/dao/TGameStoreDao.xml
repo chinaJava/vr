@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TGameStoreDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TGameStoreEntity" id="tGameStoreMap">
+        <result property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="gameGold" column="GAME_GOLD"/>
+        <result property="productUrl" column="PRODUCT_URL"/>
+        <result property="productValue" column="PRODUCT_VALUE"/>
+        <result property="productType" column="PRODUCT_TYPE"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="status" column="STATUS"/>
+        <result property="inventory" column="INVENTORY"/>
+        <result property="detail" column="DETAIL"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TGameStoreEntity">
+		select * from t_game_store where ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TGameStoreEntity">
+		select gs.*,sp.NAME as productTypeName 
+		from t_game_store gs 
+		left join t_store_producttype sp on gs.PRODUCT_TYPE=sp.ID
+		<where>
+			<if test="name!=null and name.trim()!=''">and gs.NAME like concat('%',#{name},'%') </if>
+			<if test="status!=null and status.trim()!=''">and gs.STATUS=#{status}</if>
+			<if test="productType!=null">and gs.PRODUCT_TYPE=#{productType}</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by gs.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_game_store 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TGameStoreEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_store
+		(
+			`NAME`, 
+			`GAME_GOLD`, 
+			`PRODUCT_URL`, 
+			`PRODUCT_VALUE`, 
+			`PRODUCT_TYPE`,
+			`CREATOR`, 
+			`INVENTORY`, 
+			`DETAIL`, 
+			`STATUS`
+		)
+		values
+		(
+			#{name}, 
+			#{gameGold}, 
+			#{productUrl}, 
+			#{productValue}, 
+			#{productType},
+			#{creator}, 
+			#{inventory}, 
+			#{detail}, 
+			#{status}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TGameStoreEntity">
+		update t_game_store 
+		<set>
+			<if test="name != null">`NAME` = #{name}, </if>
+			<if test="gameGold != null">`GAME_GOLD` = #{gameGold}, </if>
+			<if test="productUrl != null">`PRODUCT_URL` = #{productUrl}, </if>
+			<if test="productValue != null">`PRODUCT_VALUE` = #{productValue}, </if>
+			<if test="productType != null">`PRODUCT_TYPE` = #{productType},</if>
+			<if test="inventory != null">`INVENTORY` = #{inventory},</if>
+			<if test="detail != null">`DETAIL` = #{detail},</if>
+			<if test="status != null">`STATUS` = #{status}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_game_store where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_game_store where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

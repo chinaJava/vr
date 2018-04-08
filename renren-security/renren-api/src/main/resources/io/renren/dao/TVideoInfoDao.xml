@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TVideoInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TVideoInfoEntity" id="tVideoInfoMap">
+        <result property="id" column="ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="remark" column="REMARK"/>
+        <result property="videoUrl" column="VIDEO_URL"/>
+        <result property="status" column="STATUS"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="duration" column="DURATION"/>
+        <result property="videlPicPath" column="VIDEO_PICPATH"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TVideoInfoEntity">
+		select * from t_video_info where ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TVideoInfoEntity">
+		select * from t_video_info
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_video_info 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TVideoInfoEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_video_info
+		(
+			`TITLE`, 
+			`REMARK`, 
+			`VIDEO_URL`, 
+			`STATUS`, 
+			`CREATETIME`, 
+			`DURATION`, 
+			`CREATOR`
+		)
+		values
+		(
+			#{title}, 
+			#{remark}, 
+			#{videoUrl}, 
+			#{status}, 
+			#{createtime}, 
+			#{duration}, 
+			#{creator}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TVideoInfoEntity">
+		update t_video_info 
+		<set>
+			<if test="title != null">`TITLE` = #{title}, </if>
+			<if test="remark != null">`REMARK` = #{remark}, </if>
+			<if test="videoUrl != null">`VIDEO_URL` = #{videoUrl}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			<if test="duration != null">`DURATION` = #{duration}, </if>
+			<if test="creator != null">`CREATOR` = #{creator}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_video_info where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_video_info where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

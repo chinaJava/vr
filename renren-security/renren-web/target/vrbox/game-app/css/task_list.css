@@ -1,0 +1,348 @@
+/*container*/
+#container{
+	padding-top: 1rem;
+	width: 100%;
+	overflow: hidden;
+	background: #eeeeee;
+	position: relative;
+}
+#container>section{
+	background: #FFFFFF;
+}
+/*section1*/
+#container .task-msg{
+	width: 96%;
+	padding: 2%;
+	background: #FFFFFF;
+}
+#container .task-msg .head-pic{
+	float: left;
+	width: 1.2rem;
+	margin-right: .3rem;
+	border-radius:5px;
+}
+#container .task-msg .content{
+	overflow: hidden;
+}
+#container .content .title{
+	font-size: .28rem;
+	color: #333333;
+	margin-bottom: .15rem;
+	font-weight: normal;
+}
+#container .content .award,.difficulty{
+	font-size: .22rem;
+	margin-bottom: .15rem;
+	color: #666666;
+}
+#container .content .money {
+	font-size: .22rem;
+	color:#f5a171;
+}
+#container .task-msg .award-msg{
+	padding-left:.3rem ;
+	margin-top: .3rem;
+	position: relative;
+}
+#container .task-msg .award-msg:before{
+	content: '';
+	display: block;
+	position: absolute;
+	background: url(../img/warm.png) no-repeat;
+	background-size: 100%;
+	width: .22rem;
+	height: .22rem;
+	top: 0;
+	left: 0;
+}
+#container .task-msg .submit{
+	display: block;
+	width: 100%;
+	background: #30c41c;
+	height:.8rem ;
+	line-height: .8rem;
+	font-size: .28rem;
+	color: #FFFFFF;
+	border-radius:5px ;
+	text-align: center;
+	margin-top: .3rem;
+}
+
+/*section2*/
+#container .task-specification{
+	margin-top: .2rem;
+	width: 100%;
+}
+#container .task-specification .title{
+	width: 100%;
+	border-bottom: 1px solid #e7e7e7;
+	text-align: center;
+}
+#container .task-specification .title span{
+	padding: .2rem 0;
+	font-size: .28rem;
+	display: inline-block;
+	
+}
+#container .task-specification  .task-show{
+	margin-right: 2.55rem;
+}
+#container .task-specification .active{
+	color: #f5a171;
+	border-bottom: 3px solid #f2791f;
+}
+/*濞寸姾顕ф慨鐔烘嫚鐎涙ɑ顫�*/
+/*task-list*/
+#container .task-main{
+	display: none;
+}
+#container .task-list{
+	margin-top: .3rem;
+	line-height: .45rem;
+}
+#container .task-list>li{
+	font-size: .3rem;
+	color: #737373;
+	margin-bottom: .4rem;
+}
+#container .task-list>li:last-child{
+	margin-bottom: 0;
+}
+#container .task-list .list-title{
+	font-weight: normal;
+}
+#container .task-list .font-col{
+	color: #f57211;
+}
+/*濞寸姾顕ф慨鐔访规担琛℃煠*/
+#container .task-list .task-do{
+	margin: .45rem 0;
+	overflow: hidden;
+	width: 100%;
+}
+#container .task-list .task-do li{
+	font-size: .26rem;
+	float: left;
+	width: 1.68rem;
+	height:1.11rem ;
+	text-align: center;
+	line-height: 1.11rem;
+	background: #f3f3f3;
+	margin-right: .15rem;
+	position: relative;
+}
+#container .task-list .task-do li:before{
+	content: "";
+	display: block;
+	position: absolute;
+	top: 50%;
+	margin-top: -.15rem;
+	right: -.22rem;
+	background: url(../img/circlebg.png) no-repeat;
+	background-size: 100%;
+	width: .3rem;
+	height: .3rem;
+	z-index: 99;
+}
+#container .task-list .task-do li:last-child{
+	margin-right: 0;
+}
+#container .task-list .task-do li:last-child:before{
+	display: none;
+}
+#container .task-list .task-do li p{
+	margin-top: .1rem;
+	line-height: .4rem;
+}
+#container .task-list  .area-place{
+	margin-left: .2rem;
+}
+/*閻犲浄闄勯崕蹇曟喆閸曨偄鐏熼柛鎺擃殙閵嗭拷*/
+#container .task-list .rule-list{
+	width: 100%;
+	overflow: hidden;
+}
+#container .task-list .rule-list li{
+	margin-bottom: .5rem;
+	color: #6c6c6c;
+}
+#container .task-list .rule-list li:last-child{
+	margin-bottom: .2rem;
+}
+#container .task-main{
+	width: 96%;
+	overflow: hidden;
+	padding:2%;
+	font-size: .28rem;
+	color: #666666;
+	line-height: .4rem;
+}
+/*婵炴挸鎲￠崹娆愮鐎ｎ剛鐭�*/
+#container .game-main{
+	width: 96%;
+	overflow: hidden;
+	display: none;
+	padding:2%;
+	font-size: .28rem;
+	color: #666666;
+	line-height: .4rem;
+	text-indent: 2em;
+}
+#container .game-main .pic-list{
+	margin-top: .2rem;
+	margin-left: .15rem;
+	overflow: hidden;
+}
+#container .game-main .pic-list li{
+	float: left;
+	margin-right: .1rem;
+}
+#container .game-main .pic-list li img{
+	width: 3.37rem;
+	height: 4.5rem;
+	border-radius:8px ;
+}
+#container .game-main .game-show{
+	padding:.1rem 0;
+	font-size: .28rem;
+	color: #666666;
+	line-height: .4rem;
+	margin-left: .15rem;
+}
+/*section3*/
+#container .help{
+	margin: .2rem 0;
+	height: .9rem;
+	width: 100%;
+	line-height: .9rem;
+}
+#container .help p{
+	margin-left: .65rem;
+	font-size: .3rem;
+	position: relative;
+}
+#container .help p:before{
+	position: absolute;
+	content: "";
+	display: block;
+	top: 50%;
+	margin-top: -.15rem;
+	left: -.5rem;
+	width: .1rem;
+	height: .3rem;
+	background: #168ad5;
+}
+#container .help p:after{
+	content: ">";
+	position: absolute;
+	display: block;
+	font-size: .5rem;
+	vertical-align: middle;
+	color: #178ad5;
+	right: .2rem;
+	top: 0;
+	
+}
+
+/*闂侇剦鍠氶崓鐢典沪閿燂拷*/
+#background{
+	position:absolute ;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,.6);
+	z-index: 999;
+	margin-top: .88rem;
+	display: none;
+}
+#background .container{
+	width: 5.9rem;
+	height: 4.3rem;
+	background: #FFFFFF;
+	text-align: center;
+	overflow: hidden;
+	margin-top: 1.1rem;
+	margin-left:.85rem ;
+	border-radius: 5px;
+}
+#background .container h1{
+	margin-top: .45rem;
+	font-size: .35rem;
+	color:#3c3c3c ;
+	font-weight: normal;
+}
+#background .container h3{
+	margin-top: .1rem;
+	font-size: .32rem;
+	color: #989898;
+	font-weight: normal;
+}
+
+#background .container .after{
+	display: block;
+	float: left;
+	font-size: .33rem;
+	width: 2.8rem;
+	height: .84rem;
+	text-align: center;
+	line-height: .84rem;
+	border-radius: 3px;
+	background: #c4c3c3;
+	color: #3c3c3c;
+	margin:0 .1rem;
+}
+#background .container .install{
+	display: block;
+	float: left;
+	font-size: .33rem;
+	width: 2.8rem;
+	height: .84rem;
+	text-align: center;
+	line-height: .84rem;
+	border-radius: 3px;
+	background: #54ba3d;
+	color: #FFFFFF;
+}
+/*濞寸姾顕ф慨鐔访规担琛℃煠*/
+#background  .task-do{
+	margin: .45rem 0;
+	overflow: hidden;
+	width: 94%;
+	padding: 0 3%;
+}
+#background  .task-do li{
+	font-size: .26rem;
+	float: left;
+	width: 1.68rem;
+	height:1.11rem ;
+	text-align: center;
+	line-height: 1.11rem;
+	background: #f3f3f3;
+	margin-right: .15rem;
+	position: relative;
+}
+#background  .task-do li:before{
+	content: "";
+	display: block;
+	position: absolute;
+	top: 50%;
+	margin-top: -.15rem;
+	right: -.22rem;
+	background: url(../img/circlebg.png) no-repeat;
+	background-size: 100%;
+	width: .3rem;
+	height: .3rem;
+	z-index: 99;
+}
+#background  .task-do li:last-child{
+	margin-right: 0;
+}
+#background .task-do li:last-child:before{
+	display: none;
+}
+#background  .task-do li p{
+	margin-top: .1rem;
+	line-height: .4rem;
+	color: #fa7a29;
+}

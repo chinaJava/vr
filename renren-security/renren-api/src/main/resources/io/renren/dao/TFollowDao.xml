@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TFollowDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TFollowEntity" id="tFollowMap">
+        <result property="followId" column="FOLLOW_ID"/>
+        <result property="followUserId" column="FOLLOW_USER_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="state" column="STATE"/>
+        <result property="createTime" column="CREATE_TIME"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TFollowEntity">
+		select * from t_follow where FOLLOW_ID = #{value}
+	</select>
+	
+	<select id="get" resultType="io.renren.entity.TFollowEntity">
+		select * from t_follow 
+			<where>
+				<if test="userId != null">
+							USER_ID = #{userId}
+				</if>
+				<if test="followUserId != null">
+							and FOLLOW_USER_ID = #{followUserId}
+				</if>	
+			</where>
+		limit 1
+	</select>
+
+
+	<select id="queryList" resultType="io.renren.entity.TFollowEntity">
+		select * from t_follow
+		 <where> 
+					<if test="userId != null">
+							USER_ID = #{userId}
+					</if>
+					<if test="state == null">
+							and state &gt; 0
+					</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by FOLLOW_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_follow 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TFollowEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_follow
+		(
+			`FOLLOW_USER_ID`, 
+			`USER_ID`, 
+			`STATE`, 
+			`CREATE_TIME`
+		)
+		values
+		(
+			#{followUserId}, 
+			#{userId}, 
+			#{state}, 
+			#{createTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TFollowEntity">
+		update t_follow 
+		<set>
+			<if test="followUserId != null">`FOLLOW_USER_ID` = #{followUserId}, </if>
+			<if test="userId != null">`USER_ID` = #{userId}, </if>
+			<if test="state != null">`STATE` = #{state}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}</if>
+		</set>
+		where FOLLOW_ID = #{followId}
+	</update>
+	
+	<update id="updateBatch">
+		UPDATE t_follow set STATE = #{state} where FOLLOW_ID in
+		<foreach item="followId" collection="followIds" open="(" separator="," close=")">
+			#{followId}
+		</foreach>
+	</update>
+	
+	<delete id="delete">
+		delete from t_follow where FOLLOW_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_follow where FOLLOW_ID in 
+		<foreach item="followId" collection="array" open="(" separator="," close=")">
+			#{followId}
+		</foreach>
+	</delete>
+
+</mapper>

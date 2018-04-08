@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserPointgoodsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserPointgoodsEntity" id="tAppuserPointgoodsMap">
+        <result property="id" column="ID"/>
+        <result property="appuserId" column="APPUSER_ID"/>
+        <result property="goodsId" column="GOODS_ID"/>
+        <result property="status" column="STATUS"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="remark" column="REMARK"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TAppuserPointgoodsEntity">
+		select tp.*,tg.GOODS_NAME as goodsName,ta.MOBILE as userMobile
+		from t_appuser_pointgoods tp
+		left join t_point_goods tg on tg.ID = tp.GOODS_ID
+		left join t_appuser ta on ta.ID = tp.APPUSER_ID
+		where tp.ID = #{value}
+	</select>
+	
+	<select id="queryByAppuserIdAndGoodsId" resultType="io.renren.entity.TAppuserPointgoodsEntity">
+		select * from t_appuser_pointgoods where APPUSER_ID = #{appuserId} and GOODS_ID = #{goodsId} limit 1
+	</select>
+	
+	<select id="queryByAppuserId" resultType="io.renren.entity.TAppuserPointgoodsEntity">
+		select tp.*,tg.GOODS_NAME as goodsName,tg.EXCHANGE_POINTS as exchangePoints
+		from t_appuser_pointgoods tp
+		left join t_point_goods tg on tg.ID = tp.GOODS_ID
+		where tp.APPUSER_ID = #{appuserId} and tp.STATUS ='2'
+	</select>
+	<select id="queryDetail" resultType="io.renren.entity.TAppuserPointgoodsEntity">
+		select tp.*,tg.GOODS_NAME as goodsName,ta.MOBILE as userMobile
+		from t_appuser_pointgoods tp
+		left join t_point_goods tg on tg.ID = tp.GOODS_ID
+		left join t_appuser ta on ta.ID = tp.APPUSER_ID 
+		where APPUSER_ID=#{id}
+		<if test="userMobile != null and userMobile.trim() != ''">
+			and ta.MOBILE = #{userMobile}
+		</if>
+		<if test="goodsName != null and goodsName.trim() != ''">
+			and tg.GOODS_NAME like concat('%',#{goodsName},'%')
+		</if>
+		<if test="status != null and status.trim() != ''">
+			and tp.STATUS =  #{status}
+		</if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by tp.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="queryList" resultType="io.renren.entity.TAppuserPointgoodsEntity">
+		select tp.*,tg.GOODS_NAME as goodsName,ta.MOBILE as userMobile
+		from t_appuser_pointgoods tp
+		left join t_point_goods tg on tg.ID = tp.GOODS_ID
+		left join t_appuser ta on ta.ID = tp.APPUSER_ID
+		<where>
+			<if test="userMobile != null and userMobile.trim() != ''">
+				and ta.MOBILE = #{userMobile}
+			</if>
+			<if test="goodsName != null and goodsName.trim() != ''">
+				and tg.GOODS_NAME like concat('%',#{goodsName},'%')
+			</if>
+			<if test="status != null and status.trim() != ''">
+				and tp.STATUS =  #{status}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by tp.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_pointgoods 
+	</select>
+	 <select id="queryTotalByAppuserId" resultType="int">
+		select count(*) from t_appuser_pointgoods where APPUSER_ID=(select APPUSER_ID from t_appuser_promotion_list where ID=#{id})
+	</select>
+	<insert id="save" parameterType="io.renren.entity.TAppuserPointgoodsEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_appuser_pointgoods
+		(
+			`APPUSER_ID`, 
+			`GOODS_ID`, 
+			`REMARK`,
+			`CREATETIME`,
+			`STATUS`
+		)
+		values
+		(
+			#{appuserId}, 
+			#{goodsId}, 
+			#{remark},
+			#{createtime},
+			#{status}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppuserPointgoodsEntity">
+		update t_appuser_pointgoods 
+		<set>
+			<if test="appuserId != null">`APPUSER_ID` = #{appuserId}, </if>
+			<if test="goodsId != null">`GOODS_ID` = #{goodsId}, </if>
+			<if test="remark != null">`REMARK` = #{remark},</if>
+			<if test="createtime != null">`CREATETIME` = #{createtime},</if>
+			<if test="status != null">`STATUS` = #{status}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<update id="updateByAppuserId">
+		update t_appuser_pointgoods set STATUS = '3' where APPUSER_ID = #{appuserId} and STATUS = '2'
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser_pointgoods where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_pointgoods where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

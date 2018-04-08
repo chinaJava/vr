@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+#parse("sys/header.html")
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+		
+			<div class="form-group col-sm-2">
+				<input type="text" class="form-control" v-model="q.mobile" @keyup.enter="query" placeholder="手机号">
+			</div>
+			<div class="form-group col-sm-2">
+				<input type="text" class="form-control" v-model="q.username" @keyup.enter="query" placeholder="用户账号">
+			</div>
+			<div class="form-group col-sm-2" style="width: 10%">
+				<select id="memberLevel_query" class="form-control" v-model="q.memberLevel"></select>
+			</div>
+			<div class="form-group col-sm-2" style="width: 10%">
+				<select class="form-control" v-model="q.sex">
+			      	<option value="">请选择...</option>
+			      	<option value="M">男</option>
+			      	<option value="F">女</option>
+			     </select>
+			</div>
+			<a class="btn btn-default" @click="query">查询</a>
+			
+			<!-- 
+			#if($shiro.hasPermission("tappuserdetail:save"))
+			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			#end
+			-->
+			#if($shiro.hasPermission("tappuserdetail:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			#end
+			<!-- 
+			#if($shiro.hasPermission("tappuserdetail:delete"))
+			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			#end
+			 -->
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">头像</div>
+			   	<div class="col-sm-10">
+			      <img v-if="tAppuserDetail.headPic != null" src="tAppuserDetail.headPic" alt="用户头像"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">手机号</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.mobile" placeholder="" disabled="disabled"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">用户账号</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.username" placeholder="" disabled="disabled"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">用户编号</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.usercode" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">昵称</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.nikename" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">真实姓名</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.realname" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">会员等级</div>
+			   	<div class="col-sm-10">
+			      <select id="memberLevel_add" class="form-control" v-model="tAppuserDetail.memberLevelId"></select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">会员开始时间</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.memberStartTime" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">会员结束时间</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.memberEndTime" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">性别</div>
+			   	<div class="col-sm-10">
+			      <select class="form-control" v-model="tAppuserDetail.sex">
+			      	<option value="M">男</option>
+			      	<option value="F">女</option>
+			      </select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">出生日期</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.birthday" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">区域</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.city" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">当前积分</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserDetail.point" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="${rc.contextPath}/js/app/tappuserdetail.js?_${date.systemTime}"></script>
+</body>
+</html>

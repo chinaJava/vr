@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TCollectionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TCollectionEntity" id="tCollectionMap">
+        <result property="collectionId" column="COLLECTION_ID"/>
+        <result property="invitationId" column="INVITATION_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="state" column="STATE"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TCollectionEntity">
+		select * from t_collection where COLLECTION_ID = #{value}
+	</select>
+	
+	<select id="get" resultType="io.renren.entity.TCollectionEntity">
+		select * from t_collection
+		<where>
+				<if test="userId != null">
+							USER_ID = #{userId}
+				</if>
+				<if test="invitationId != null">
+						and	INVITATION_ID = #{invitationId}
+				</if>
+		</where>
+		limit 1
+	</select>
+	
+	<select id="queryList" resultType="io.renren.entity.TCollectionEntity">
+		select * from t_collection
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by COLLECTION_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="queryByInvitation" resultType="io.renren.entity.TCollectionEntity">
+		select * from t_collection
+        <where>
+        	INVITATION_ID = #{invitation_id}
+        </where>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_collection 
+	</select>
+	
+	<update id="updateBatch">
+		UPDATE t_collection set STATE = #{state} where COLLECTION_ID in
+		<foreach item="collectionId" collection="collectionIds" open="(" separator="," close=")">
+			#{collectionId}
+		</foreach>
+	</update>
+	 
+	<insert id="save" parameterType="io.renren.entity.TCollectionEntity">
+		insert into t_collection
+		(
+			`COLLECTION_ID`, 
+			`INVITATION_ID`, 
+			`USER_ID`, 
+			`CREATE_TIME`, 
+			`STATE`
+		)
+		values
+		(
+			#{collectionId}, 
+			#{invitationId}, 
+			#{userId}, 
+			#{createTime}, 
+			#{state}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TCollectionEntity">
+		update t_collection 
+		<set>
+			<if test="invitationId != null">`INVITATION_ID` = #{invitationId}, </if>
+			<if test="userId != null">`USER_ID` = #{userId}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}, </if>
+			<if test="state != null">`STATE` = #{state}</if>
+		</set>
+		where COLLECTION_ID = #{collectionId}
+	</update>
+	
+	<delete id="delete">
+		delete from t_collection where COLLECTION_ID = #{value}
+	</delete>
+		
+	
+	<!--<delete id="deleteByState">
+		delete from t_collection where STATE = 0
+	</delete>	-->
+	
+	<delete id="deleteBatch">
+		delete from t_collection where COLLECTION_ID in 
+		<foreach item="collectionId" collection="array" open="(" separator="," close=")">
+			#{collectionId}
+		</foreach>
+	</delete>
+	
+
+</mapper>

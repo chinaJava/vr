@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TPointGoodsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TPointGoodsEntity" id="tPointGoodsMap">
+        <result property="id" column="ID"/>
+        <result property="goodsName" column="GOODS_NAME"/>
+        <result property="logoUrl" column="LOGO_URL"/>
+        <result property="status" column="STATUS"/>
+        <result property="exchangePoints" column="EXCHANGE_POINTS"/>
+        <result property="totalNum" column="TOTAL_NUM"/>
+        <result property="remainNum" column="REMAIN_NUM"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="remark" column="REMARK"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TPointGoodsEntity">
+		select * from t_point_goods where ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TPointGoodsEntity">
+		select * from t_point_goods
+		<where>
+			<if test="status != null and status.trim() != ''">
+				and STATUS =  #{status}
+			</if>
+	    </where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_point_goods 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TPointGoodsEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_point_goods
+		(
+			`GOODS_NAME`, 
+			`LOGO_URL`, 
+			`STATUS`, 
+			`EXCHANGE_POINTS`, 
+			`TOTAL_NUM`, 
+			`REMAIN_NUM`, 
+			`CREATETIME`,
+			`REMARK`
+		)
+		values
+		(
+			#{goodsName}, 
+			#{logoUrl}, 
+			#{status}, 
+			#{exchangePoints}, 
+			#{totalNum}, 
+			#{remainNum}, 
+			#{createtime},
+			#{remark}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TPointGoodsEntity">
+		update t_point_goods 
+		<set>
+			<if test="goodsName != null">`GOODS_NAME` = #{goodsName}, </if>
+			<if test="logoUrl != null">`LOGO_URL` = #{logoUrl}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="exchangePoints != null">`EXCHANGE_POINTS` = #{exchangePoints}, </if>
+			<if test="totalNum != null">`TOTAL_NUM` = #{totalNum}, </if>
+			<if test="remainNum != null">`REMAIN_NUM` = #{remainNum}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime},</if>
+			<if test="remark != null">`REMARK` = #{remark}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_point_goods where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_point_goods where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

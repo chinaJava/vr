@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TGameArticleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TGameArticleEntity" id="tGameArticleMap">
+        <result property="id" column="ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="subheading" column="SUBHEADING"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="pageViews" column="PAGE_VIEWS"/>
+        <result property="content" column="CONTENT"/>
+        <result property="typeid" column="TYPEID"/>
+        <result property="picUrl" column="PIC_URL"/>
+        <result property="author" column="AUTHOR"/>
+        <result property="gameid" column="GAMEID"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TGameArticleEntity">
+		select t1.*,ti.NAME as gameName from t_game_article as t1 left join t_game_info ti on ti.ID = t1.GAMEID where t1.ID = #{value}
+	</select>
+	
+	<select id="queryListByGame" resultType="io.renren.entity.TGameArticleEntity">
+		select tg.*,ta.NAME as typeName,ti.NAME as gameName from t_game_article tg 
+		left join t_article_type ta on ta.ID = tg.TYPEID
+		left join t_game_info ti on ti.ID = tg.GAMEID
+		<where>
+			<if test="title != null and title.trim() != ''">
+				and tg.TITLE like concat('%',#{title},'%')
+			</if>
+			<if test="null!= typeid and ''!= typeid">
+				and tg.TYPEID = #{typeid}
+			</if>
+			<if test="null!= gameid and ''!= gameid">
+				and tg.GAMEID = #{gameid}
+			</if>
+			<if test="noTypeid!=null"> and tg.TYPEID != #{noTypeid}</if>
+		</where>
+		order by tg.ID desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+
+	<select id="queryList" resultType="io.renren.entity.TGameArticleEntity">
+		select tg.*,ta.NAME as typeName,ti.NAME as gameName from t_game_article tg 
+		left join t_article_type ta on ta.ID = tg.TYPEID
+		left join t_game_info ti on ti.ID = tg.GAMEID
+		<where>
+			<if test="title != null and title.trim() != ''">
+				and tg.TITLE like concat('%',#{title},'%')
+			</if>
+			<if test="null!= typeid and ''!= typeid">
+				and tg.TYPEID = #{typeid}
+			</if>
+			<if test="null!= gameid and ''!= gameid">
+				and tg.GAMEID = #{gameid}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by tg.${sidx} ${order}
+            </when>
+			<otherwise>
+                order by tg.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_game_article 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TGameArticleEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_article
+		(
+			`TITLE`, 
+			`SUBHEADING`, 
+			`CREATOR`, 
+			`CREATETIME`, 
+			`PAGE_VIEWS`, 
+			`CONTENT`, 
+			`TYPEID`, 
+			`PIC_URL`,
+			`AUTHOR`,
+			`GAMEID`
+		)
+		values
+		(
+			#{title}, 
+			#{subheading}, 
+			#{creator}, 
+			#{createtime}, 
+			#{pageViews}, 
+			#{content}, 
+			#{typeid}, 
+			#{picUrl},
+			#{author},
+			#{gameid}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TGameArticleEntity">
+		update t_game_article 
+		<set>
+			<if test="title != null">`TITLE` = #{title}, </if>
+			<if test="subheading != null">`SUBHEADING` = #{subheading}, </if>
+			<if test="creator != null">`CREATOR` = #{creator}, </if>
+			<!-- 
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			 -->
+			<if test="pageViews != null">`PAGE_VIEWS` = #{pageViews}, </if>
+			<if test="content != null">`CONTENT` = #{content}, </if>
+			<if test="typeid != null">`TYPEID` = #{typeid}, </if>
+			<if test="picUrl != null">`PIC_URL` = #{picUrl},</if>
+			<if test="author != null">`AUTHOR` = #{author},</if>
+			<if test="gameid != null">`GAMEID` = #{gameid}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_game_article where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_game_article where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="format-detection" content="telephone=no, address=no">
+		<title>产品详情</title>
+		<link rel="stylesheet" href="css/common.css" />
+	</head>
+	<body>
+		<style type="text/css">
+			#container{
+				padding-top: 1rem;
+				overflow: hidden;
+				width: 100%;
+				background: #eeeeee;
+			}
+			#container .main{
+				width: 94%;
+				padding: 0 3%;
+				background: #FFFFFF;
+				overflow: hidden;
+			}
+			#container .main .banner{
+				width: 100%;
+				overflow: hidden;
+				margin: 3% 0; 
+			}
+			#container .main .banner img{
+				width: 100%;
+				/* height: 3.7rem; */
+			}
+			#container .main .title{
+				margin-bottom: .2rem;
+			}
+			#container .main .title h1{
+				font-weight: normal;
+				font-size: .3rem;
+				color: #333333;
+			}
+			#container .main .title p{
+				font-size: .24rem;
+				color: #f27709;
+				margin-top: .1rem;
+			}
+			/*地址*/
+			#container .address{
+				margin-top: .2rem;
+				overflow: hidden;
+				width: 100%;
+				background: #FFFFFF;
+			}
+			#container  .address-list{
+				width: 100%;
+				overflow: hidden;
+			}
+			#container  .address-list li{
+				width: calc(100% - .6rem);
+				border-bottom: 1px solid #e7e7e7;
+				padding: .3rem;
+			}
+			#container  .address-list .peo-msg{
+				font-size: .28rem;
+				color: #333333;
+				margin-bottom: .2rem;
+				position: relative;
+				padding-left: .2rem;
+			}
+			#container  .address-list .active .peo-msg:before{
+				content: "";
+				display: block;
+				position: absolute;
+				background: url(img/address.png) no-repeat;
+				width: .24rem;
+				height: .3rem;
+				top: 0;
+				left:-.2rem;
+				background-size: 100%;
+			}
+			#container  .address-list .name{
+				margin-right:.3rem ;
+			}
+			#container  .address-list .house{
+				font-size: .24rem;
+				color: #666666;
+			}
+			#container .submit{
+				position: absolute;
+				bottom: .5rem;
+				left: 3%;
+				width: 94%;
+				margin: 0 auto;
+				height: .88rem;
+				background: #62cb15;
+				line-height: .88rem;
+				font-size: .3rem;
+				color: #FFFFFF;
+				text-align: center;
+				border-radius: 5px;
+			}
+		</style>
+		<!--header-->
+		<header id="header">
+			<a class="back" href="javascript:void(0)" onclick="back()"></a>
+			<a class="edit" href="javascript:void(0)"></a>
+			<h1 class="title">产品详情</h1>
+		</header>
+		<article id="container">
+			<section class="main">
+				<div class="banner">
+					<img v-bind:src="tGameStore.productUrl" src="" alt="pro_pic"/>
+				</div>
+				<div class="title">
+					<h1 v-text="tGameStore.name"></h1>
+					<p v-text="[tGameStore.gameGold+'金币']"></p>
+				</div>
+			</section>
+			<section class="address">
+				<ul class="address-list">
+					<li v-for="(index,item) in addressInfo" class="{{index==0?'active':null}}"  data-id="{{item.id}}" @click="address($event)">
+						<div class="main">
+							<p class="peo-msg"><span class="name" v-text="item.consiger"></span><span class="phone" v-text="item.telephone"></span></p>
+							<p class="house" v-text="item.address"></p>
+						</div>
+					</li>
+				</ul>
+				<div class="submit" @click="submitPro">兑换</div>
+			</section>
+		</article>
+		
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		<script type="text/javascript" src="js/common.js" ></script>
+		<script type="text/javascript" src="js/pro_details.js" ></script>
+	</body>
+</html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserSignDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserSignEntity" id="tAppuserSignMap">
+        <result property="id" column="ID"/>
+        <result property="appuserId" column="APPUSER_ID"/>
+        <result property="signTime" column="SIGN_TIME"/>
+        <result property="signCount" column="SIGN_COUNT"/>
+        <result property="signAllCount" column="SIGN_ALL_COUNT"/>
+        <result property="lastSignDate" column="LAST_SIGN_DATE"/>
+    </resultMap>
+     
+	<select id="queryUser" resultType="io.renren.entity.TAppuserSignEntity">
+		select * from t_appuser_sign where APPUSER_ID = #{appuserId}
+	</select>
+	
+	<select id="queryObject" resultType="io.renren.entity.TAppuserSignEntity">
+		select * from t_appuser_sign where ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TAppuserSignEntity">
+		select ts.ID,td.NIKENAME as username,ts.SIGN_TIME,ts.SIGN_ALL_COUNT,ts.LAST_SIGN_DATE from t_appuser_sign ts left join t_appuser_detail td on td.APPUSERID=ts.APPUSER_ID
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_sign 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserSignEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_appuser_sign
+		(
+			`APPUSER_ID`, 
+			`SIGN_TIME`, 
+			`SIGN_COUNT`, 
+			`SIGN_ALL_COUNT`,
+			`LAST_SIGN_DATE`
+		)
+		values
+		(
+			#{appuserId}, 
+			#{signTime}, 
+			#{signCount}, 
+			#{signAllCount},
+			#{lastSignDate}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppuserSignEntity">
+		update t_appuser_sign 
+		<set>
+			`SIGN_TIME` = #{signTime},`SIGN_ALL_COUNT` =SIGN_ALL_COUNT + 1,`SIGN_COUNT` =SIGN_COUNT + 1,`LAST_SIGN_DATE`=#{lastSignDate} where APPUSER_ID = #{appuserId}
+		</set>
+	</update>
+	
+	<update id="interrupt" parameterType="io.renren.entity.TAppuserSignEntity">
+		update t_appuser_sign 
+		<set>
+			`SIGN_TIME` = #{signTime},`SIGN_ALL_COUNT` =SIGN_ALL_COUNT + 1,`SIGN_COUNT` =1,`LAST_SIGN_DATE`=#{lastSignDate} where APPUSER_ID = #{appuserId}
+		</set>
+	</update>
+
+	<delete id="delete">
+		delete from t_appuser_sign where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_sign where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

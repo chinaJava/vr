@@ -1,0 +1,141 @@
+@charset "utf-8";
+/*
+ 	引用rem布局 
+ 	*/
+
+
+/*
+ 	清除默认样式
+ * */
+
+* {
+	margin: 0;
+	padding: 0;
+	font-family: "苹方",simsun;
+	/*font-family: simsun;*/
+}
+
+html,
+body {
+	width: 100%;
+}
+
+body {
+	font-size: 0.24rem;
+}
+
+html {
+	font: 16px/1.2 simsun;
+}
+
+img {
+	border: none;
+	vertical-align: top;
+}
+
+textarea {
+	resize: none;
+	overflow: auto;
+}
+
+li {
+	list-style-type: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+.clear {
+	clear: both;
+}
+
+input {
+	padding: 0px 1.5%;
+}
+
+textarea {
+	padding: 2.5%;
+}
+
+input,
+textarea,
+button,
+a,
+select {
+	outline: none;
+}
+
+input,
+input:hover,
+input:focus {
+	outline: none;
+	border: 1px solid darkgray;
+}
+
+/*
+ 	头部
+ * */
+#header{
+	padding: 0 .26rem;
+	width: calc(100% - .52rem);
+	height: 1rem;
+	background: #00a0e9;
+	text-align: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	z-index: 9999;
+}
+#header .back{
+	display: block;
+	float: left;
+	background: url(../img/back.png) no-repeat;
+	width: .19rem;
+	height: .34rem;
+	position: absolute;
+	top: 50%;
+	margin-top: -.17rem;
+	background-size: 100%;
+}
+#header .edit{
+	display: block;
+	background: url(../img/pro_circle.png) no-repeat;
+	width: .55rem;
+	height: .16rem;
+	position: absolute;
+	right: .2rem;
+	top: 50%;
+	margin-top: -.08rem;
+	background-size: 100%;
+}
+#header .message{
+	display: block;
+	background: url(../img/message.png) no-repeat;
+	width: .44rem;
+	height: .4rem;
+	position: absolute;
+	top: 50%;
+	margin-top: -.17rem;
+	background-size: 100%;
+	right: .86rem;
+}
+#header .download{
+	right: .26rem;
+	display: block;
+	background: url(../img/download.png) no-repeat;
+	width: .4rem;
+	height: .4rem;
+	position: absolute;
+	top: 50%;
+	margin-top: -.17rem;
+	background-size: 100%;
+}
+#header .title{
+	font-size: .36rem;
+	color: white;
+	line-height: 1rem;
+	font-weight: normal;
+}
+

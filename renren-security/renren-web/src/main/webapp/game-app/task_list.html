@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="format-detection" content="telephone=no, address=no">
+		<title>任务列表</title>
+		<link rel="stylesheet" type="text/css" href="css/task_list.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+	</head>
+	<body>
+		<!--header-->
+		<header id="header">
+			<a class="back" href="javascript:void(0)" onclick="back()"></a>
+			<a class="message" href="javascript:void(0)"></a>
+			<a class="download" href="javascript:void(0)" onclick="gotoDownLoad()"></a>
+			<h1 class="title">任务列表</h1>
+		</header>
+		<!--container-->
+		<article id="container">
+			<!--section1-->
+			<section class="task-msg">
+				<img class="head-pic" v-bind:src="taskDetails.logoUrl" src="" alt="headPic"/>
+				<div class="content">
+					<h1 class="title" v-text="taskDetails.title"></h1>
+					<p class="award">奖励：<span class="money" v-text="['+'+taskDetails.earnGold+'金币']"></span>|剩余：<span v-text="[taskDetails.restNumber!=null?taskDetails.restNumber:0+'份']"></span></p>
+					<p class="difficulty">难度：<span class="time" v-text="taskDetails.difficult"></span></p>
+				</div>
+				<p class="award-msg">奖励数量有限，先完成任务先得，3个工作日到账</p>
+				<span class="submit" @click="submit">领取任务</span>
+			</section>
+			<!--section2-->
+			<section class="task-specification">
+				<div class="title">
+					<span class="task-show active" @click="changeTask">任务说明</span>
+					<span class="game-show" @click="changeGame">游戏介绍</span>
+				</div>
+				<!--任务说明-->
+				<div class="task-main">
+				</div>
+				<!--游戏介绍-->
+				<div class="game-main">
+				</div>
+			</section>
+			<!--section3-->
+			<section class="help">
+				<p @click="goHelp">遇到此问题了？请点击</p>
+			</section>
+			<!--遮罩层-->
+			<div id="background">
+				<div class="container">
+					<h1>恭喜成功领取任务！</h1>
+					<h3>你还有以下步骤没有完成</h3>
+					<ul class="task-do">
+						<li><p class="font-col">指定区服</p><p class="font-col">新建角色</p></li>
+						<li><p class="font-col">等级达</p><p class="font-col">28级</p></li>
+						<li><p class="day font-col">三个工作日</p><p>内奖励到账</p></li>
+					</ul>
+					<a class="after" href="javascript:void(0)" @click="doAfter">稍后再做</a>
+					<a class="install" href="javascript:void(0)" @click="install">{{gameUrl==''?'下载游戏':'开始游戏'}}</a>
+				</div>
+			</div>
+		
+		</article>
+		
+		
+		
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		<script type="text/javascript" src="js/common.js" ></script>
+		<script type="text/javascript" src="js/task_list.js" ></script>
+	</body>
+</html>

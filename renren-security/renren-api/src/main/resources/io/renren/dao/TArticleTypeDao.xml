@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TArticleTypeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TArticleTypeEntity" id="tArticleTypeMap">
+        <result property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="pid" column="PID"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="status" column="STATUS"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TArticleTypeEntity">
+		select * from t_article_type where ID = #{value}
+	</select>
+	
+	<select id="queryParentList" resultType="io.renren.entity.TArticleTypeEntity">
+		select * from t_article_type where PID is null
+		<if test="status != null and status.trim() != '' ">
+			and STATUS = #{status}
+		</if>
+	</select>
+	
+	<select id="queryListByPid" resultType="io.renren.entity.TArticleTypeEntity">
+		select * from t_article_type where PID = #{id}
+		<if test="status != null and status.trim() != '' ">
+			and STATUS = #{status}
+		</if>
+	</select>
+	
+	<select id="queryAllObject" resultType="io.renren.entity.TGameTypeEntity">
+		select * from t_article_type where STATUS = '1'
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TArticleTypeEntity">
+		select ta.*,tt.NAME as pName from t_article_type ta
+		left join t_article_type tt on tt.ID = ta.PID
+		<where>
+			<if test="name != null and name.trim() != ''">
+				and ta.NAME like concat('%',#{name},'%')
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ta.ID asc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_article_type 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TArticleTypeEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_article_type
+		(
+			`NAME`, 
+			`PID`, 
+			`CREATOR`,
+			`CREATETIME`,
+			`STATUS`
+		)
+		values
+		(
+			#{name}, 
+			#{pid}, 
+			#{creator},
+			#{createtime},
+			#{status}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TArticleTypeEntity">
+		update t_article_type 
+		<set>
+			<if test="name != null">`NAME` = #{name}, </if>
+			<if test="pid != null">`PID` = #{pid}, </if>
+			<if test="pid != null">`STATUS` = #{status}, </if>
+			<!-- 
+			<if test="createtime != null">`CREATETIME` = #{createtime}</if>
+			 -->
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_article_type where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_article_type where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

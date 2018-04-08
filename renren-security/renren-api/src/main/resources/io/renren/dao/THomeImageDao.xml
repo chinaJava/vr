@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.THomeImageDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.THomeImageEntity" id="tHomeImageMap">
+        <result property="id" column="ID"/>
+        <result property="path" column="PATH"/>
+        <result property="picUrl" column="PIC_URL"/>
+        <result property="status" column="STATUS"/>
+        <result property="typeId" column="TYPEID"/>
+        <result property="isBanner" column="IS_BANNER"/>
+        <result property="index" column="INDEX"/>
+        <result property="skipToArticle" column="SKIP_TO_ARTICLE"/>
+        <result property="skipToGame" column="SKIP_TO_GAME"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.THomeImageEntity">
+		select * from t_home_image where ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.THomeImageEntity">
+		 select home.*,CASE WHEN type.NAME IS NULL THEN '推荐页' ELSE type.NAME  END AS typeName
+		 from t_home_image home
+		 left join t_game_type type on type.ID=home.TYPEID
+		 <where>
+			<if test="null != typeId ">
+				and home.TYPEID = #{typeId}
+			</if>
+			<if test="isBanner != null and isBanner.trim() != ''">
+				and home.IS_BANNER = #{isBanner}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by home.${sidx} ${order}
+            </when>
+			<otherwise>
+                order by home.TYPEID asc,home.IS_BANNER desc,home.INDEX asc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_home_image 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.THomeImageEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_home_image
+		(
+			`PATH`, 
+			`PIC_URL`, 
+			`STATUS`,
+			`TYPEID`,
+			`IS_BANNER`,
+			`INDEX`,
+			`SKIP_TO_ARTICLE`,
+			`SKIP_TO_GAME`
+		)
+		values
+		(
+			#{path}, 
+			#{picUrl}, 
+			#{status},
+			#{typeId},
+			#{isBanner},
+			#{index},
+			#{skipToArticle},
+			#{skipToGame}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.THomeImageEntity">
+		update t_home_image 
+		<set>
+			<if test="path != null">`PATH` = #{path}, </if>
+			<if test="picUrl != null">`PIC_URL` = #{picUrl}, </if>
+			<if test="status != null">`STATUS` = #{status},</if>
+			<if test="typeId != null">`TYPEID` = #{typeId},</if>
+			<if test="isBanner != null">`IS_BANNER` = #{isBanner},</if>
+			<if test="index != null">`INDEX` = #{index},</if>
+			<if test="skipToArticle != null">`SKIP_TO_ARTICLE` = #{skipToArticle},</if>
+			<if test="skipToGame != null">`SKIP_TO_GAME` = #{skipToGame}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_home_image where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_home_image where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TUserRepaymentDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TUserRepaymentEntity" id="tUserRepaymentMap">
+        <result property="id" column="ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="paymentMethod" column="PAYMENT_METHOD"/>
+        <result property="status" column="STATUS"/>
+        <result property="paymentNo" column="PAYMENT_NO"/>
+        <result property="paymentTime" column="PAYMENT_TIME"/>
+        <result property="mermberLevelId" column="MERMBER_LEVEL_ID"/>
+        <result property="mermberTime" column="MERMBER_TIME"/>
+        <result property="amountMoney" column="AMOUNT_MONEY"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TUserRepaymentEntity">
+		select * from t_user_repayment where ID = #{value}
+	</select>
+	
+	<select id="queryRepaymentByAppNoAndStatus" resultType="io.renren.entity.TUserRepaymentEntity">
+		select * from t_user_repayment 
+		<where>
+			<if test="appNo!=null and appNo.trim()!='' "> PAYMENT_NO =#{appNo}</if>
+			<if test="status!=null and status.trim()!='' "> and STATUS=#{status}</if>
+		</where>
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TUserRepaymentEntity">
+		select * from t_user_repayment
+		<where>
+			<if test="userId!=null and userId.trim()!='' "> USER_ID=#{userId}</if>
+			<if test="paymentNo!=null and paymentNo.trim()!='' "> and  PAYMENT_NO=#{paymentNo}</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_user_repayment 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TUserRepaymentEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user_repayment
+		(
+			`USER_ID`, 
+			`PAYMENT_METHOD`, 
+			`STATUS`, 
+			`PAYMENT_NO`, 
+			`PAYMENT_TIME`, 
+			`MERMBER_LEVEL_ID`, 
+			`MERMBER_TIME`, 
+			`AMOUNT_MONEY`
+		)
+		values
+		(
+			#{userId}, 
+			#{paymentMethod}, 
+			#{status}, 
+			#{paymentNo}, 
+			#{paymentTime}, 
+			#{mermberLevelId}, 
+			#{mermberTime}, 
+			#{amountMoney}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TUserRepaymentEntity">
+		update t_user_repayment 
+		<set>
+			<if test="userId != null">`USER_ID` = #{userId}, </if>
+			<if test="paymentMethod != null">`PAYMENT_METHOD` = #{paymentMethod}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="paymentNo != null">`PAYMENT_NO` = #{paymentNo}, </if>
+			<if test="paymentTime != null">`PAYMENT_TIME` = #{paymentTime}, </if>
+			<if test="mermberLevelId != null">`MERMBER_LEVEL_ID` = #{mermberLevelId}, </if>
+			<if test="mermberTime != null">`MERMBER_TIME` = #{mermberTime}, </if>
+			<if test="amountMoney != null">`AMOUNT_MONEY` = #{amountMoney}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<update id="updateSelecByAppNoAndStatus" parameterType="io.renren.entity.TUserRepaymentEntity">
+		update t_user_repayment 
+		<set>
+			STATUS=#{status}
+		</set>
+		where PAYMENT_NO=#{appNo} AND STATUS='D'
+	</update>
+	
+	<delete id="delete">
+		delete from t_user_repayment where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_user_repayment where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserFavoritesDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserFavoritesEntity" id="tAppuserFavoritesMap">
+        <result property="id" column="ID"/>
+        <result property="appuserId" column="APPUSER_ID"/>
+        <result property="gameId" column="GAME_ID"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="type" column="TYPE"/>
+    </resultMap>
+    
+	<select id="queryRecommend" resultType="io.renren.entity.TGameRecommentEntity">
+		SELECT tf.ID as favoritesId, td.NIKENAME as recommender,td.HEAD_PIC as headPic,tmt.NAME as gameType,
+			tmt.GAME_PICTURE_URL as logoUrl,tmt.gameName,tmt.ID as gameId,tmt.SUMMARY as content,tmt.versionIos,tmt.versionAndroid,tmt.downloadingAndroidUrl,tmt.packageNameAndroid,tmt.downloadingIosUrl,tmt.packageNameIos,tmt.gameLogoUrl,tmt.gameUrl  
+		FROM t_appuser_favorites tf 
+		LEFT JOIN t_appuser_detail td ON td.APPUSERID = tf.APPUSER_ID
+		LEFT JOIN (
+			SELECT tt.NAME ,tg.GAME_PICTURE_URL,tg.NAME as gameName,tg.ID,tg.SUMMARY,tg.VERSION_IOS as versionIos,tg.VERSION_ANDROID as versionAndroid,tg.DOWNLOADING_ANDROID_URL as downloadingAndroidUrl,tg.PACKAGE_NAME_ANDROID as packageNameAndroid,tg.DOWNLOADING_IOS_URL as downloadingIosUrl,tg.PACKAGE_NAME_IOS as packageNameIos,tg.LOGO_URL as gameLogoUrl,tg.GAME_URL as gameUrl
+			FROM t_game_info tg
+			LEFT JOIN t_game_type tt ON tt.ID = tg.typeid
+		) tmt ON tmt.ID = tf.game_Id 
+		where tf.TYPE='2'
+	</select>
+	<select id="queryObject" resultType="io.renren.entity.TAppuserFavoritesEntity">
+		select * from t_appuser_favorites where ID = #{value}
+	</select>
+	<select id="queryObjectByAppuserIdAndGameId" resultType="io.renren.entity.TAppuserFavoritesEntity">
+		select * from t_appuser_favorites where APPUSER_ID = #{0} and GAME_ID=#{1} and (`TYPE`='1' or `TYPE`='0');
+	</select>
+	<select id="queryList" resultType="io.renren.entity.TAppuserFavoritesEntity">
+	    select taf.*,ta.MOBILE as userMobile,tg.NAME as gameName
+		from t_appuser_favorites taf
+		left join t_appuser ta on ta.ID = taf.APPUSER_ID
+		left join t_game_info tg on tg.ID = taf.GAME_ID
+       <where>
+			<if test="userMobile != null and userMobile.trim() != ''">
+				and ta.MOBILE =  #{userMobile}
+			</if>
+			<if test="gameName != null and gameName.trim() != ''">
+				and tg.NAME like concat(concat('%',#{gameName}),'%')
+			</if>
+	    </where> 
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="queryNumByGameIdAndAppuserId" resultType="int">
+		select count(*) from t_appuser_favorites where  APPUSER_ID=#{0} and  GAME_ID=#{1} and TYPE='2'
+	</select>
+	<select id="queryListByGameId" resultType="io.renren.entity.TAppuserFavoritesEntity">
+		select tf.ID,tf.CREATETIME,tf.TYPE,td.NIKENAME as username,tg.NAME as game 
+		from t_appuser_favorites tf 
+		left join t_game_info tg on tg.ID= tf.GAME_ID
+		left join t_appuser_detail td on td.APPUSERID=tf.APPUSER_ID
+		 <where>
+			<if test="game != null and game.trim() != ''">
+				and tg.NAME like concat('%', #{game}, '%')
+			</if>
+	    </where> 
+		 <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by tg.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select> 	
+	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_favorites 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserFavoritesEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_appuser_favorites
+		(
+			`APPUSER_ID`, 
+			`GAME_ID`, 
+			`CREATETIME`, 
+			`TYPE`
+		)
+		values
+		(
+			#{appuserId}, 
+			#{gameId}, 
+			#{createtime}, 
+			#{type}
+		)
+	</insert>
+	<update id="update" parameterType="io.renren.entity.TAppuserFavoritesEntity">
+		update t_appuser_favorites 
+		<set>
+			<if test="appuserId != null">`APPUSER_ID` = #{appuserId}, </if>
+			<if test="gameId != null">`GAME_ID` = #{gameId}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			<if test="type != null">`TYPE` = #{type}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser_favorites where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_favorites where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

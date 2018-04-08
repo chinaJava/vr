@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TGameCommentDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TGameCommentEntity" id="tGameCommentMap">
+        <result property="id" column="ID"/>
+        <result property="gameid" column="GAMEID"/>
+        <result property="appuserid" column="APPUSERID"/>
+        <result property="comment" column="COMMENT"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="starLevel" column="STAR_LEVEL"/>
+        <result property="pid" column="PID"/>
+        <result property="status" column="STATUS"/>
+         <result property="isRecommend" column="IS_RECOMMEND"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TGameCommentEntity">
+		select t1.*,t2.name as gameName from t_game_comment t1 left join t_game_info t2 on t1.GAMEID=t2.ID where t1.ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TGameCommentEntity">
+		select c.*,detail.REALNAME as realname,detail.HEAD_PIC as headPic,game.NAME as gameName,tt.USERNAME as userName
+		 from t_game_comment as  c
+		 left join t_appuser_detail as  detail on detail.APPUSERID=c.APPUSERID
+		 LEFT JOIN t_game_info as game on c.GAMEID=game.ID
+		 left join t_appuser tt on c.APPUSERID=tt.ID
+		 <where>
+		 	<if test="gameName!=null and gameName.trim() != ''">
+				and game.`NAME` like concat('%',#{gameName},'%')
+			</if>
+			<if test="userName!=null and userName.trim()!=''">
+				and tt.`USERNAME`=#{userName}
+			</if>
+			 <if test="null!=gameId and ''!=gameId ">and c.GAMEID=#{gameId}</if>	
+			 <if test="null!=status and ''!=status "> and c.STATUS=#{status}</if>
+			 <if test="pId!=null "> and c.PID=#{pId}</if>
+			 <if test="id!=null"> and c.ID=#{id}</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by c.${sidx} ${order}
+            </when>
+			<otherwise>
+                order by c.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if> 
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_game_comment 
+		<where>
+			<if test="null!=gameId and ''!=gameId ">AND GAMEID=#{gameId}</if>
+			<if test="null!=status and ''!=status ">AND  STATUS=#{status}</if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TGameCommentEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_comment
+		(
+			`GAMEID`, 
+			`APPUSERID`, 
+			`COMMENT`, 
+			`CREATETIME`, 
+			`STAR_LEVEL`, 
+			`PID`,
+			STATUS,
+			IS_RECOMMEND
+		)
+		values
+		(
+			#{gameid}, 
+			#{appuserid}, 
+			#{comment}, 
+			#{createtime}, 
+			#{starLevel}, 
+			#{pid},
+			#{status},
+			#{isRecommend}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TGameCommentEntity">
+		update t_game_comment 
+		<set>
+			<if test="gameid != null">`GAMEID` = #{gameid}, </if>
+			<if test="appuserid != null">`APPUSERID` = #{appuserid}, </if>
+			<if test="comment != null">`COMMENT` = #{comment}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			<if test="starLevel != null">`STAR_LEVEL` = #{starLevel}, </if>
+			<if test="pid != null">`PID` = #{pid},</if>
+			<if test="status != null">`STATUS` = #{status} ,</if>
+			<if test="isRecommend!= null">`IS_RECOMMEND` = #{isRecommend}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<update id="batchUpdateById" parameterType="io.renren.entity.TGameCommentEntity">
+		update t_game_comment 
+		<set>
+			<if test="status != null">`STATUS` = #{status} </if>
+		</set>
+		where ID = #{id} or PID=#{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_game_comment where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_game_comment where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

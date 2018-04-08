@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserTaskDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserTaskEntity" id="tAppuserTaskMap">
+        <result property="id" column="ID"/>
+        <result property="taskId" column="TASK_ID"/>
+        <result property="appuserId" column="APPUSER_ID"/>
+        <result property="status" column="STATUS"/>
+        <result property="receiveTime" column="RECEIVE_TIME"/>
+        <result property="finishTime" column="FINISH_TIME"/>
+        <result property="remark" column="REMARK"/>
+        <result property="finishTaskPic" column="FINISH_TASK_PIC"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TAppuserTaskEntity">
+		select tt.*,ta.MOBILE as userMobile,tg.TITLE as taskName 
+		from t_appuser_task tt 
+		left join t_appuser ta on ta.ID = tt.APPUSER_ID
+		left join t_game_task tg on tg.ID = tt.TASK_ID
+		where tt.ID = #{value}
+	</select>
+	<select id="queryObjectByTaskId" resultType="io.renren.entity.TAppuserTaskEntity">
+		select * from t_appuser_task where TASK_ID = #{taskId} and APPUSER_ID = #{appuserId}  limit 1
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TAppuserTaskEntity">
+		select tt.*,ta.MOBILE as userMobile,tg.TITLE as taskName 
+		from t_appuser_task tt 
+		left join t_appuser ta on ta.ID = tt.APPUSER_ID
+		left join t_game_task tg on tg.ID = tt.TASK_ID
+		<where>
+			<if test="useMobile != null and useMobile.trim() != ''">
+				and ta.MOBILE = #{useMobile}
+			</if>
+			<if test="taskName != null and taskName.trim() != ''">
+				and tg.TITLE like concat(concat('%',#{taskName}),'%')
+			</if>
+			<if test="status != null and status.trim() != ''">
+				and tt.STATUS = #{status}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_task 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserTaskEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_appuser_task
+		(
+			`TASK_ID`, 
+			`APPUSER_ID`, 
+			`STATUS`, 
+			`RECEIVE_TIME`, 
+			`FINISH_TIME`, 
+			`FINISH_TASK_PIC`, 
+			`REMARK`
+		)
+		values
+		(
+			#{taskId}, 
+			#{appuserId}, 
+			#{status}, 
+			#{receiveTime}, 
+			#{finishTime}, 
+			#{finishTaskPic}, 
+			#{remark}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TAppuserTaskEntity">
+		update t_appuser_task 
+		<set>
+			<if test="taskId != null">`TASK_ID` = #{taskId}, </if>
+			<if test="appuserId != null">`APPUSER_ID` = #{appuserId}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="receiveTime != null">`RECEIVE_TIME` = #{receiveTime}, </if>
+			<if test="finishTime != null">`FINISH_TIME` = #{finishTime}, </if>
+			<if test="finishTaskPic != null">`FINISH_TASK_PIC` = #{finishTaskPic}, </if>
+			<if test="remark != null">`REMARK` = #{remark}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser_task where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_task where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

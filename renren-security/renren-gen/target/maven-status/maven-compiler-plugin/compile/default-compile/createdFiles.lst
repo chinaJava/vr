@@ -1,0 +1,7 @@
+io\renren\entity\ColumnEntity.class
+io\renren\dao\SysGeneratorDao.class
+io\renren\utils\GenUtils.class
+io\renren\entity\TableEntity.class
+io\renren\service\SysGeneratorService.class
+io\renren\controller\SysGeneratorController.class
+io\renren\service\impl\SysGeneratorServiceImpl.class

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<link href="${rc.contextPath}/statics/plugins/bootstrap_fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+<link href="${rc.contextPath}/statics/plugins/jq_cropbox/css/style.css" type="text/css" rel="stylesheet"/>
+<link href="${rc.contextPath}/js/umeditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+#parse("sys/header.html")
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<div class="form-group col-sm-2">
+				<input type="text" class="form-control" v-model="q.title" @keyup.enter="query" placeholder="礼物标题">
+			</div>
+			<div class="form-group col-sm-2" style="width: 15%">
+				<select id="memberLevel_query" class="form-control" v-model="q.memberLevel"></select>
+			</div>
+			<div class="form-group col-sm-2" style="width: 10%">
+				<select class="form-control" v-model="q.status">
+					<option value="">请选择...</option>
+					<option value="0">已下架</option>
+					<option value="1">正常</option>
+				</select>
+			</div>
+			<a class="btn btn-default" @click="query">查询</a>
+			
+			#if($shiro.hasPermission("tmembergifts:save"))
+			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			#end
+			#if($shiro.hasPermission("tmembergifts:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			#end
+			#if($shiro.hasPermission("tmembergifts:delete"))
+			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			#end
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">礼包标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tMemberGifts.title" placeholder="礼包标题"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">游戏图标</div>
+			   	<div class="col-sm-10">
+			   		<img  id="game_logo_url" src="" style="width: 80px;height: 80px;-moz-border-radius: 15px;-webkit-border-radius: 15px;border-radius:15px;" hidden="hidden"/>
+					<div class="container_logo">
+						<div class="imageBox">
+							<div class="thumbBox"></div>
+							<div class="spinner" style="display: none">Loading...</div>
+						</div>
+						<div class="action"> 
+							<!-- <input type="file" id="file" style=" width: 200px">-->
+							<div class="new-contentarea tc"> <a href="javascript:void(0)" class="upload-img">
+								<label for="upload-file">上传图像</label>
+								</a>
+								<input type="file" class="" name="upload-file" id="upload-file" />
+							</div>
+							<input type="button" id="btnCrop"  class="Btnsty_peyton" value="裁切">
+							<input type="button" id="btnZoomIn" class="Btnsty_peyton" value="+"  >
+							<input type="button" id="btnZoomOut" class="Btnsty_peyton" value="-" >
+						</div>
+						<div class="cropped"></div>
+					</div>			    
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">礼包说明</div>
+			   	<div class="col-sm-10">
+			      <textarea  class="form-control" v-model="tMemberGifts.remark" placeholder="礼包说明"></textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">会员等级要求</div>
+			   	<div class="col-sm-10">
+			      <select id="memberLevel_add" class="form-control" v-model="tMemberGifts.memberLevelId"></select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">状态</div>
+			   	<div class="col-sm-10">
+			      <select class="form-control" v-model="tMemberGifts.status" >
+						<option value="1">上架</option>
+						<option value="0">下架</option>
+					</select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">礼包开始时间</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tMemberGifts.giftsStartTime" placeholder="礼包开始时间"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">礼包结束时间</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tMemberGifts.giftsEndTime" placeholder="礼包结束时间"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">剩余数量</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tMemberGifts.amount" placeholder="剩余数量"/>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="${rc.contextPath}/js/app/tmembergifts.js?_${date.systemTime}"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/third-party/template.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/lang/zh-cn/zh-cn.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/plugins/jq_cropbox/js/cropbox.js"></script>
+<!-- 文件上传js插件 -->
+<script src="${rc.contextPath}/statics/plugins/bootstrap_fileinput/js/fileinput.js" type="text/javascript"></script>
+<script src="${rc.contextPath}/statics/plugins/bootstrap_fileinput/js/locales/zh.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+$(window).load(function() {
+	var options =
+	{
+		thumbBox: '.thumbBox',
+		spinner: '.spinner',
+		imgSrc: '${rc.contextPath}/statics/plugins/jq_cropbox/image/avatar.png'
+		
+	}
+	var cropper = $('.imageBox').cropbox(options);
+	$('#upload-file').on('change', function(){
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			options.imgSrc = e.target.result;
+			cropper = $('.imageBox').cropbox(options);
+		}
+		reader.readAsDataURL(this.files[0]);
+	})
+	$('#btnCrop').on('click', function(){
+		var img = cropper.getDataURL();
+		$('.cropped').html('');
+		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:64px;margin-top:4px;border-radius:64px;box-shadow:0px 0px 12px #7E7E7E;" ><p>64px*64px</p>');
+		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:128px;margin-top:4px;border-radius:128px;box-shadow:0px 0px 12px #7E7E7E;"><p>128px*128px</p>');
+		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:180px;margin-top:4px;border-radius:180px;box-shadow:0px 0px 12px #7E7E7E;"><p>180px*180px</p>');
+	})
+	$('#btnZoomIn').on('click', function(){
+		cropper.zoomIn();
+	})
+	$('#btnZoomOut').on('click', function(){
+		cropper.zoomOut();
+	})
+	
+});
+
+</script>
+</body>
+</html>

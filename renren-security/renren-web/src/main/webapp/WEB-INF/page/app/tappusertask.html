@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<link href="${rc.contextPath}/js/umeditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+#parse("sys/header.html")
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<div class="form-group col-sm-2">
+				<input type="text" class="form-control" v-model="q.useMobile" @keyup.enter="query" placeholder="用户手机号">
+			</div>
+			<div class="form-group col-sm-2">
+				<input type="text" class="form-control" v-model="q.taskName" @keyup.enter="query" placeholder="任务标题">
+			</div>
+			<div class="form-group col-sm-2" style="width: 15%">
+				<select class="form-control" v-model="q.status" @keyup.enter="query">
+					<option value="">选择任务完成状态</option>
+			      	<option value="1">进行中</option>
+					<option value="2">已完成</option>
+					<option value="3">已领奖</option>
+					<option value="4">已结束</option>
+				</select>
+			</div>
+			<a class="btn btn-default" @click="query">查询</a>
+			
+			<!-- 
+			#if($shiro.hasPermission("tappusertask:save"))
+			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			#end
+			#if($shiro.hasPermission("tappusertask:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			#end
+			 -->
+			#if($shiro.hasPermission("tappusertask:update"))
+			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;审核完成任务</a>
+			#end
+			#if($shiro.hasPermission("tappusertask:delete"))
+			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			#end
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">任务标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserTask.taskName" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">用户手机号</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserTask.userMobile" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">领取任务时间</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserTask.receiveTime" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">完成任务时间</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="tAppuserTask.finishTime" placeholder=""/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">执行状态</div>
+			   	<div class="col-sm-10">
+			     	<select class="form-control" v-model="tAppuserTask.status" >
+				      	<option value="1">进行中</option>
+						<option value="2">已完成</option>
+						<option value="3">已领奖</option>
+						<option value="4">已结束</option>
+					</select>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">完成情况截图</div>
+			   	<div class="col-sm-10" id="finishTask_pic">
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">备注</div>
+			   	<div class="col-sm-10">
+			      <textarea rows="20" cols="100" class="form-control" id="remark_task">
+				  </textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="${rc.contextPath}/js/app/tappusertask.js?_${date.systemTime}"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/third-party/template.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="${rc.contextPath}/js/umeditor/umeditor.min.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/js/umeditor/lang/zh-cn/zh-cn.js"></script>
+</body>
+</html>

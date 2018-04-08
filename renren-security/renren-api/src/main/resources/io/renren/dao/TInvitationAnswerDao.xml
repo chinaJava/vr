@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TInvitationAnswerDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+	<resultMap type="io.renren.entity.TInvitationAnswerEntity" id="tAnswerMap">
+		<result property="answerId" column="ANSWER_ID"/>
+		<result property="invitationId" column="INVITATION_ID"/>
+		<result property="answerContent" column="ANSWER_CONTENT"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="answerTime" column="ANSWER_TIME"/>
+		<result property="parentId" column="PARENT_ID"/>
+		<result property="state" column="STATE"/>
+		<result property="nikeName"   column="NIKENAME"/>
+		<result property="sex"    column="SEX"/>
+		<result property="headPic"     column="HEAD_PIC"/>
+		
+	</resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TInvitationAnswerEntity">
+		select * from t_invitation_answer where ANSWER_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TInvitationAnswerEntity">
+		SELECT * from invitation_answer_view
+		<where>
+			<if test="invitationId != null ">
+				 INVITATION_ID = #{invitationId}
+			</if>
+		</where>
+		<choose>
+			<when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+			</when>
+			<otherwise>
+                order by ANSWER_TIME ASC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+		
+	</select>
+	
+	<select id="queryTotalByChild" resultType="int" parameterType="java.lang.Long">
+		select COUNT(1) from t_invitation_answer
+		   where FIND_IN_SET(answer_id, getChildLst(#{answerId})) AND answer_id !=#{answerId} AND STATE>0;
+	</select>
+	
+	
+	<select id="queryOne" resultType="io.renren.entity.TInvitationAnswerEntity">
+		SELECT * from invitation_answer_view 
+		<where>
+			<if test="invitationId != null ">
+				 INVITATION_ID = #{invitationId}
+			</if>
+		</where>
+		limit 1
+	</select>
+	
+	
+	<select id="queryTotal" resultType="int">
+		select count(*) from t_invitation_answer 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TInvitationAnswerEntity" useGeneratedKeys="true"  keyProperty="id">
+		insert into t_invitation_answer
+		(
+			`INVITATION_ID`, 
+			`ANSWER_CONTENT`, 
+			`USER_ID`, 
+			`ANSWER_TIME`, 
+			`PARENT_ID`,
+			`STATE`
+		)
+		values
+		(
+			#{invitationId}, 
+			#{answerContent}, 
+			#{userId}, 
+			#{answerTime}, 
+			#{parentId},
+			#{state}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TInvitationAnswerEntity">
+		update t_invitation_answer 
+		<set>
+			<if test="invitationId != null">`INVITATION_ID` = #{invitationId}, </if>
+			<if test="answerContent != null">`ANSWER_CONTENT` = #{answerContent}, </if>
+			<if test="userId != null">`USER_ID` = #{userId}, </if>
+			<if test="answerTime != null">`ANSWER_TIME` = #{answerTime}, </if>
+			<if test="parentId != null">`PARENT_ID` = #{parentId}</if>
+			<if test="state != null">`STATE` = #{state}</if>
+		</set>
+		where ANSWER_ID = #{answerId}
+	</update>
+
+	<delete id="delete">
+		delete from t_invitation_answer where ANSWER_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_invitation_answer where ANSWER_ID in 
+		<foreach item="answerId" collection="array" open="(" separator="," close=")">
+			#{answerId}
+		</foreach>
+	</delete>
+
+	<update id="updateBatch">
+		UPDATE t_invitation_answer set STATE = #{state} where ANSWER_ID in
+		<foreach item="answerId" collection="answerIds" open="(" separator="," close=")">
+			#{answerId}
+		</foreach>
+	</update>
+	
+</mapper>

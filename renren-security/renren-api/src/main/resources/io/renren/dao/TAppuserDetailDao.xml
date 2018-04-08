@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TAppuserDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TAppuserDetailEntity" id="tAppuserDetailMap">
+        <result property="id" column="ID"/>
+        <result property="appuserid" column="APPUSERID"/>
+        <result property="nikename" column="NIKENAME"/>
+        <result property="realname" column="REALNAME"/>
+        <result property="sex" column="SEX"/>
+        <result property="birthday" column="BIRTHDAY"/>
+        <result property="headPic" column="HEAD_PIC"/>
+        <result property="city" column="CITY"/>
+        <result property="point" column="POINT"/>
+        <result property="usercode" column="USERCODE"/>
+        <result property="gameGold" column="GAME_GOLD"/>
+        <result property="memberLevelId" column="MEMBER_LEVEL_ID"/>
+        <result property="memberStartTime" column="MEMBER_START_TIME"/>
+        <result property="memberEndTime" column="MEMBER_END_TIME"/>
+        <result property="pointTotal" column="POINT_TOTAL"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TAppuserDetailEntity">
+		select td.*,ta.MOBILE as mobile,ta.USERNAME as username from t_appuser_detail td 
+		left join t_appuser ta on ta.ID = td.APPUSERID 
+		where td.ID = #{value}
+	</select>
+	<select id="queryObjectByAppuserId" resultType="io.renren.entity.TAppuserDetailEntity">
+		select ta.* ,tm.NAME as memberLevel,tu.MOBILE as mobile
+		from t_appuser_detail ta
+		left join t_appuser tu on tu.ID = ta.APPUSERID
+		left join t_member_info tm on tm.ID = ta.MEMBER_LEVEL_ID
+		where APPUSERID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TAppuserDetailEntity">
+		select td.*,ta.MOBILE as mobile,ta.USERNAME as username,tm.NAME as memberLevel
+		from t_appuser_detail td 
+		left join t_appuser ta on ta.ID = td.APPUSERID
+		left join t_member_info tm on tm.ID = td.MEMBER_LEVEL_ID
+		<where>
+			<if test="mobile != null and mobile.trim() != ''">
+				and ta.MOBILE = #{mobile}
+			</if>
+			<if test="username != null and username.trim() != ''">
+				and ta.USERNAME like concat('%',#{username},'%') 
+			</if>
+			<if test="sex != null and sex.trim() != ''">
+				and td.SEX =  #{sex}
+			</if>
+			<if test="memberLevel != null ">
+				and td.MEMBER_LEVEL_ID =  #{memberLevel}
+			</if>
+		</where>
+		
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by td.ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_appuser_detail 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TAppuserDetailEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_appuser_detail
+		(
+			`APPUSERID`, 
+			`NIKENAME`, 
+			`REALNAME`, 
+			`SEX`, 
+			`BIRTHDAY`, 
+			`HEAD_PIC`, 
+			`CITY`, 
+			`POINT`, 
+			`POINT_TOTAL`, 
+			`USERCODE`,
+			`MEMBER_LEVEL_ID`,
+			`MEMBER_START_TIME`,
+			`MEMBER_END_TIME`,
+			`GAME_GOLD`
+		)
+		values
+		(
+			#{appuserid}, 
+			#{nikename}, 
+			#{realname}, 
+			#{sex}, 
+			#{birthday}, 
+			#{headPic}, 
+			#{city}, 
+			#{point}, 
+			#{pointTotal}, 
+			#{usercode},
+			#{memberLevelId},
+			#{memberStartTime},
+			#{memberEndTime},
+			#{gameGold}
+		)
+	</insert>
+	<update id="updateGameGold" parameterType="hashmap">
+			update t_appuser_detail set `GAME_GOLD` =`GAME_GOLD`+#{gameGold} where APPUSERID = #{appuserId}
+	</update>
+	
+	<update id="update" parameterType="io.renren.entity.TAppuserDetailEntity">
+		update t_appuser_detail 
+		<set>
+			<!-- <if test="appuserid != null">`APPUSERID` = #{appuserid}, </if> -->
+			<if test="nikename != null and nikename.trim() != ''">`NIKENAME` = #{nikename}, </if>
+			<if test="realname != null and realname.trim() != ''">`REALNAME` = #{realname}, </if>
+			<if test="sex != null and sex.trim() != ''">`SEX` = #{sex}, </if>
+			<if test="birthday != null">`BIRTHDAY` = #{birthday}, </if>
+			<if test="headPic != null">`HEAD_PIC` = #{headPic}, </if>
+			<if test="city != null and city.trim() != ''">`CITY` = #{city}, </if>
+			<if test="point != null">`POINT` = #{point}, </if>
+			<if test="pointTotal != null">`POINT_TOTAL` = #{pointTotal}, </if>
+			<if test="usercode != null">`USERCODE` = #{usercode},</if>
+			<if test="memberLevelId != null">`MEMBER_LEVEL_ID` = #{memberLevelId},</if>
+			<if test="memberStartTime != null">`MEMBER_START_TIME` = #{memberStartTime},</if>
+			<if test="memberEndTime != null">`MEMBER_END_TIME` = #{memberEndTime},</if>
+			<if test="gameGold != null">`GAME_GOLD` = #{gameGold}</if>
+		</set>
+		where APPUSERID = #{appuserid}
+	</update>
+	
+	<delete id="delete">
+		delete from t_appuser_detail where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_appuser_detail where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

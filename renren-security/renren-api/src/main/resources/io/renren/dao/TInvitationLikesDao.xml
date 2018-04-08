@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TInvitationLikesDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TInvitationLikesEntity" id="tLikeMap">
+        <result property="likeId" column="LIKE_ID"/>
+        <result property="invitationId" column="INVITATION_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="state" column="STATE"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TInvitationLikesEntity">
+		select * from t_invitation_likes where LIKE_ID = #{value}
+	</select>
+	
+	<select id="queryObjectByUserId" resultType="io.renren.entity.TInvitationLikesEntity">
+		select * from t_invitation_likes
+		<where>
+			<if test="userId != null">
+				and USER_ID = #{userId}
+			</if>
+			<if test="invitationId != null">
+				and	INVITATION_ID = #{invitationId}
+			</if>
+		</where>
+		limit 1
+	</select>
+	
+	<select id="queryList" resultType="io.renren.entity.TInvitationLikesEntity">
+		select * from t_invitation_likes
+		<where> 
+			<if test="userId != null">
+				and USER_ID = #{userId}
+			</if>
+			<if test="state == null">
+				and	state &gt; 0
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by LIKE_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(1) from t_invitation_likes 
+		<where> 
+			<if test="userId != null">
+				  USER_ID = #{userId}
+			</if>
+			<if test="invitationId != null">
+				AND	INVITATION_ID = #{invitationId}
+			</if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TInvitationLikesEntity">
+		insert into t_invitation_likes
+		(
+			`LIKE_ID`, 
+			`INVITATION_ID`, 
+			`USER_ID`, 
+			`CREATE_TIME`, 
+			`STATE`
+		)
+		values
+		(
+			#{likeId}, 
+			#{invitationId}, 
+			#{userId}, 
+			#{createTime}, 
+			#{state}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TInvitationLikesEntity">
+		update t_invitation_likes 
+		<set>
+			<if test="invitationId != null">`INVITATION_ID` = #{invitationId}, </if>
+			<if test="userId != null">`USER_ID` = #{userId}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}, </if>
+			<if test="state != null">`STATE` = #{state}</if>
+		</set>
+		where LIKE_ID = #{likeId}
+	</update>
+	
+	<update id="updateBatch">
+		UPDATE t_invitation_likes set STATE = #{state} where ANSWER_ID in
+		<foreach item="likeId" collection="likeIds" open="(" separator="," close=")">
+			#{likeId}
+		</foreach>
+	</update>
+	
+	<delete id="delete">
+		delete from t_invitation_likes where LIKE_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_invitation_likes where LIKE_ID in 
+		<foreach item="likeId" collection="array" open="(" separator="," close=")">
+			#{likeId}
+		</foreach>
+	</delete>
+
+</mapper>

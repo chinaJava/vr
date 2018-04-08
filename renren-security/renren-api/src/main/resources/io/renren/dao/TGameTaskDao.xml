@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.TGameTaskDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.entity.TGameTaskEntity" id="tGameTaskMap">
+        <result property="id" column="ID"/>
+        <result property="gameid" column="GAMEID"/>
+        <result property="title" column="TITLE"/>
+        <result property="earnGold" column="EARN_GOLD"/>
+        <result property="deadline" column="DEADLINE"/>
+        <result property="beginTime" column="BEGIN_TIME"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="status" column="STATUS"/>
+        <result property="restNumber" column="REST_NUMBER"/>
+        <result property="difficult" column="DIFFICULT"/>
+        <result property="detail" column="DETAIL"/>
+        <result property="logoUrl" column="LOGO_URL"/>
+        <result property="taskType" column="TASK_TYPE"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="io.renren.entity.TGameTaskEntity">
+		select * from t_game_task where ID = #{value}
+	</select>
+	
+	<select id="queryObjectById" resultType="io.renren.entity.TGameTaskEntity">
+		select tt.*,tg.INTRODUCE as gameIntroduce
+		from t_game_task tt
+		left join t_game_info tg on tg.ID = tt.GAMEID
+		where tt.ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="io.renren.entity.TGameTaskEntity">
+		select tgt.*,tga.NAME as gameName
+		<if test="appuserId != null and appuserId.trim() != ''">
+			,tat.STATUS as myTaskStatus
+		</if>
+		from t_game_task tgt
+		left join t_game_info tga on tga.ID = tgt.GAMEID
+		<if test="appuserId != null and appuserId.trim() != ''">
+			left join t_appuser_task tat on tat.TASK_ID = tgt.ID
+		</if>
+		
+		<where>
+			<if test="gameName != null and gameName.trim() != ''">
+				and tga.NAME like concat(concat('%',#{gameName}),'%')
+			</if>
+			<if test="title != null and title.trim() != ''">
+				and tgt.TITLE like concat(concat('%',#{title}),'%')
+			</if>
+			<if test="taskType != null and taskType.trim() != ''">
+				and tgt.TASK_TYPE = #{taskType}
+			</if>
+			<if test="appuserId != null and appuserId.trim() != ''">
+				and tat.APPUSER_ID = #{appuserId}
+			</if>
+			<if test="myTaskStatus != null and myTaskStatus.trim() != ''">
+				and tat.STATUS = #{myTaskStatus}
+			</if>
+		</where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_game_task 
+	</select>
+	 
+	<insert id="save" parameterType="io.renren.entity.TGameTaskEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_game_task
+		(
+			`GAMEID`, 
+			`TITLE`, 
+			`EARN_GOLD`, 
+			`DEADLINE`, 
+			`CREATE_TIME`, 
+			`CREATOR`, 
+			`STATUS`, 
+			`REST_NUMBER`, 
+			`DIFFICULT`, 
+			`DETAIL`, 
+			`LOGO_URL`, 
+			`BEGIN_TIME`, 
+			`TASK_TYPE`
+		)
+		values
+		(
+			#{gameid}, 
+			#{title}, 
+			#{earnGold}, 
+			#{deadline}, 
+			#{createTime}, 
+			#{creator}, 
+			#{status}, 
+			#{restNumber}, 
+			#{difficult}, 
+			#{detail}, 
+			#{logoUrl}, 
+			#{beginTime}, 
+			#{taskType}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="io.renren.entity.TGameTaskEntity">
+		update t_game_task 
+		<set>
+			<if test="gameid != null">`GAMEID` = #{gameid}, </if>
+			<if test="title != null">`TITLE` = #{title}, </if>
+			<if test="earnGold != null">`EARN_GOLD` = #{earnGold}, </if>
+			<if test="deadline != null">`DEADLINE` = #{deadline}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}, </if>
+			<if test="creator != null">`CREATOR` = #{creator}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="restNumber != null">`REST_NUMBER` = #{restNumber}, </if>
+			<if test="difficult != null">`DIFFICULT` = #{difficult}, </if>
+			<if test="detail != null">`DETAIL` = #{detail}, </if>
+			<if test="logoUrl != null">`LOGO_URL` = #{logoUrl}, </if>
+			<if test="beginTime != null">`BEGIN_TIME` = #{beginTime}, </if>
+			<if test="taskType != null">`TASK_TYPE` = #{taskType}</if>
+		</set>
+		where ID = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_game_task where ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_game_task where ID in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>
